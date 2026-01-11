@@ -8,24 +8,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
       :root {
         --ios-blue: #007aff;
         --wa-teal: #075E54;
         --wa-bg: #e5ddd5;
+        --d4-deep: #0B0C10;
+        --d4-gray: #1F2833;
+        --d4-cyan: #66FCF1;
       }
       body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background-color: var(--wa-bg);
+        background-color: var(--d4-deep);
         margin: 0;
         padding: 0;
         overflow-x: hidden;
         -webkit-tap-highlight-color: transparent;
+        color: white;
       }
       
-      /* WhatsApp Global Wallpaper Pattern - Aplicado ao Body para persistência */
-      body::before {
+      h1, h2, h3, h4 {
+        font-family: 'Poppins', sans-serif;
+      }
+
+      .wa-doodle-bg::before {
         content: "";
         position: fixed;
         top: 0;
@@ -35,37 +42,29 @@
         background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
         background-size: 340px;
         background-repeat: repeat;
-        opacity: 0.12;
+        opacity: 0.03; /* Reduzido para estilo Dark Tech */
         pointer-events: none;
         z-index: -1;
       }
 
-      body::after {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-        opacity: 0.04;
-        pointer-events: none;
-        z-index: -1;
+      .shadow-glow-cyan {
+        box-shadow: 0 0 20px rgba(102, 252, 241, 0.3);
       }
-
-      /* Classes utilitárias para garantir transparência */
-      .wa-doodle-bg {
-        background: transparent !important;
+      .shadow-glow-cyan:hover {
+        box-shadow: 0 0 35px rgba(102, 252, 241, 0.5);
       }
 
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       
-      /* Efeito de bolha WhatsApp */
-      .user-bubble { border-radius: 12px 0 12px 12px; }
-      .system-bubble { border-radius: 0 12px 12px 12px; }
-      .clip-tail-right { clip-path: polygon(0 0, 0 100%, 100% 0); }
-      .clip-tail-left { clip-path: polygon(100% 0, 100% 100%, 0 0); }
+      @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
     </style>
   <script type="importmap">
 {
