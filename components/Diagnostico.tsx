@@ -22,7 +22,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
     label: 'Analítico',
     recommendation: '',
     scaleStrategy: '',
-    ctaText: 'EU QUERO USAR O D4 SELLER',
+    ctaText: 'QUERO ACESSAR O D4 SELLER E AGENDAR DIAGNÓSTICO 360',
     icon: null as any 
   });
   const [isAnimating, setIsAnimating] = useState(true);
@@ -62,7 +62,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
       label: '', 
       recommendation: '', 
       scaleStrategy: '',
-      ctaText: 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360',
+      ctaText: 'QUERO ACESSAR O D4 SELLER E AGENDAR DIAGNÓSTICO 360',
       icon: Info 
     };
 
@@ -73,7 +73,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
         label: 'Alto Risco', 
         recommendation: "D4 Seller: Sua operação exige automação de condução imediata. O D4 Seller resolverá o gargalo do nível atual.",
         scaleStrategy: "Sua operação está sangrando leads. O Diagnóstico 360 identificou o nível CAÓTICO: a prioridade zero é estancar a perda de margem com o D4 Seller antes de tentar qualquer escala.",
-        ctaText: 'EU QUERO USAR O D4 SELLER',
+        ctaText: 'QUERO ACESSAR O D4 SELLER E AGENDAR DIAGNÓSTICO 360',
         icon: ShieldAlert 
       };
     } else if (sC <= 4) {
@@ -83,7 +83,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
         label: 'Modo Garçom', 
         recommendation: "D4 Seller: Você atende bem, mas não conduz. O D4 Seller vai inverter essa lógica no seu WhatsApp.",
         scaleStrategy: "Você é nível REATIVO. O Diagnóstico 360 mostra que seu time atua como 'garçom'. O Mecanismo de Escala exige que você assuma a condução ativa das conversas agora.",
-        ctaText: 'EU QUERO USAR O D4 SELLER',
+        ctaText: 'QUERO ACESSAR O D4 SELLER E AGENDAR DIAGNÓSTICO 360',
         icon: AlertTriangle 
       };
     } else if (sC <= 6) {
@@ -93,7 +93,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
         label: 'Operação Base', 
         recommendation: "D4 Seller + Diagnóstico 360: Sua base é sólida, mas falta previsibilidade de fechamento em escala.",
         scaleStrategy: "Você atingiu o nível ESTRUTURADO. O Diagnóstico 360 validou sua base. O próximo passo do seu Mecanismo de Escala é automatizar a qualificação via D4 Seller para ganhar tração.",
-        ctaText: 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360',
+        ctaText: 'QUERO ACESSAR O D4 SELLER E AGENDAR DIAGNÓSTICO 360',
         icon: Info 
       };
     } else if (sC <= 8) {
@@ -103,7 +103,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
         label: 'Previsível', 
         recommendation: "Diagnóstico 360: Sua operação é previsível. O Diagnóstico 360 removerá os limites invisíveis de crescimento.",
         scaleStrategy: "Parabéns, seu status é OTIMIZADO. O Diagnóstico 360 indica uma operação madura. O Mecanismo de Escala foca agora em diminuir o CAC e aumentar seu LTV.",
-        ctaText: 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360',
+        ctaText: 'QUERO ACESSAR O D4 SELLER E AGENDAR DIAGNÓSTICO 360',
         icon: Zap 
       };
     } else {
@@ -113,16 +113,9 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
         label: 'Benchmark', 
         recommendation: "Diagnóstico 360 Premium: Você já é benchmark. Focaremos em otimização de lucro e novos canais.",
         scaleStrategy: "Status: EXCELÊNCIA. Você é o benchmark do setor. O Diagnóstico 360 Premium é o seu passaporte para dominação total de mercado e novos canais de aquisição.",
-        ctaText: 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360',
+        ctaText: 'QUERO ACESSAR O D4 SELLER E AGENDAR DIAGNÓSTICO 360',
         icon: CheckCircle 
       };
-    }
-
-    // Ajuste final da inteligência do botão:
-    if (sC <= 6 && sF < 6) {
-        lvl.ctaText = 'EU QUERO USAR O D4 SELLER';
-    } else {
-        lvl.ctaText = 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360';
     }
 
     setLevel(lvl);

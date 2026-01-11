@@ -212,7 +212,7 @@ const Experience1A: React.FC<Experience1AProps> = ({
   }, [messages, isTyping]);
 
   return (
-    <div className="flex flex-col h-screen max-w-[430px] mx-auto overflow-hidden font-sans relative bg-transparent">
+    <div className="flex flex-col h-screen max-w-[430px] mx-auto overflow-hidden font-sans relative wa-doodle-bg">
       {/* iOS Status Bar Restoration - Black on Chat Screens */}
       <div className="absolute top-0 left-0 right-0 h-10 px-6 flex justify-between items-center text-[14px] font-bold text-[#111b21] pointer-events-none z-[100]">
         <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -230,7 +230,7 @@ const Experience1A: React.FC<Experience1AProps> = ({
         </div>
       </div>
 
-      <header className="bg-[#f0f2f5]/90 backdrop-blur-md pt-10 pb-2 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 shadow-sm">
+      <header className="bg-[#f0f2f5]/90 backdrop-blur-md pt-10 pb-2 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 shadow-sm text-[#111b21]">
         <div className="flex items-center justify-between mt-1">
           <div className="flex items-center space-x-1">
             <ChevronLeft className="text-[#007aff] w-8 h-8 -ml-2 cursor-pointer" />
@@ -239,8 +239,8 @@ const Experience1A: React.FC<Experience1AProps> = ({
                 <img src={EXECUTIVE_AVATAR} alt="D4 Seller" className="w-full h-full object-cover" />
                 <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#06d755] border-2 border-[#f0f2f5] rounded-full"></div>
               </div>
-              <div className="leading-tight">
-                <h2 className="text-[16px] font-bold text-[#111b21]">D4 SELLER</h2>
+              <div className="leading-tight text-left">
+                <h2 className="text-[16px] font-bold">D4 SELLER</h2>
                 <p className={`text-[12px] font-medium transition-colors ${isTyping ? 'text-[#06d755]' : 'text-[#667781]'}`}>
                   {isTyping ? 'digitando...' : 'online'}
                 </p>
@@ -255,7 +255,7 @@ const Experience1A: React.FC<Experience1AProps> = ({
         </div>
       </header>
 
-      {/* Main Chat Area - Transparent to show body background */}
+      {/* Main Chat Area - Transparent to show body background pattern */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 z-10 scrollbar-hide pb-24 relative bg-transparent">
         <div className="flex justify-center mb-6 mt-2 relative z-10">
           <span className="bg-[#d1d7db]/80 backdrop-blur-md text-[#54656f] text-[11px] px-3 py-1.5 rounded-lg font-bold uppercase tracking-wider shadow-sm">Atendimento Ativo</span>
@@ -263,8 +263,8 @@ const Experience1A: React.FC<Experience1AProps> = ({
 
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300 relative z-10`}>
-            <div className={`${msg.sender === 'user' ? 'bg-[#DCF8C6] user-bubble shadow-md' : 'bg-white system-bubble shadow-sm'} max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl relative border border-black/[0.03]`}>
-              <div className="text-[14.5px] text-[#111b21] leading-[1.5] pr-12 whitespace-pre-wrap">{msg.text}</div>
+            <div className={`${msg.sender === 'user' ? 'bg-[#DCF8C6] user-bubble shadow-sm' : 'bg-white system-bubble shadow-sm'} max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl relative border border-black/[0.03]`}>
+              <div className="text-[14.5px] leading-[1.5] pr-12 whitespace-pre-wrap text-left">{msg.text}</div>
               <div className="flex items-center justify-end space-x-1 mt-0.5">
                 <span className="text-[9.5px] text-[#667781]/70 font-semibold uppercase">{msg.timestamp}</span>
                 {msg.sender === 'user' && <CheckCheck size={14} className="text-[#53bdeb]" />}

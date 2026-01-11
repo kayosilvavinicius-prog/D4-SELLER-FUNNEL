@@ -27,7 +27,7 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
 
   return (
     <div className="h-screen wa-doodle-bg max-w-[430px] mx-auto flex flex-col font-sans relative overflow-hidden shadow-2xl">
-      {/* iOS Status Bar Restoration - Fixed and Highest Z-Index */}
+      {/* iOS Status Bar Restoration - Black on Chat Screens */}
       <div className="absolute top-0 left-0 right-0 h-10 px-6 flex justify-between items-center text-[14px] font-bold text-[#111b21] pointer-events-none z-[100]">
         <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         <div className="flex items-center space-x-1.5">
@@ -44,7 +44,7 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
         </div>
       </div>
 
-      <header className="bg-[#f0f2f5]/95 backdrop-blur-md pt-10 pb-2 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 shadow-sm">
+      <header className="bg-[#f0f2f5]/95 backdrop-blur-md pt-10 pb-2 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 shadow-sm text-[#111b21]">
         <div className="flex items-center justify-between mt-1">
           <div className="flex items-center space-x-1">
             <ChevronLeft className="text-[#007aff] w-8 h-8 -ml-2 cursor-pointer" />
@@ -53,8 +53,8 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
                 <img src={EXECUTIVE_AVATAR} alt="D4 Seller" className="w-full h-full object-cover" />
                 <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#06d755] border-2 border-[#f0f2f5] rounded-full"></div>
               </div>
-              <div className="leading-tight">
-                <h2 className="text-[16px] font-bold text-[#111b21]">D4 SELLER</h2>
+              <div className="leading-tight text-left">
+                <h2 className="text-[16px] font-bold">D4 SELLER</h2>
                 <p className="text-[12px] text-[#667781] font-medium">online</p>
               </div>
             </div>
@@ -77,7 +77,7 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
             {shouldShowFallMessage && (
               <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="bg-white system-bubble max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03]">
-                  <div className="text-[14.5px] text-[#111b21] leading-[1.5] pr-12">
+                  <div className="text-[14.5px] leading-[1.5] pr-12 text-left">
                     A ligação caiu, mas tudo bem. Seguimos por aqui 🙂
                   </div>
                   <div className="flex items-center justify-end space-x-1 mt-0.5">
@@ -93,7 +93,7 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
               style={{animationDelay: shouldShowFallMessage ? '0.8s' : '0s'}}
             >
               <div className="bg-white system-bubble max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03]">
-                <div className="text-[14.5px] text-[#111b21] leading-[1.5] whitespace-pre-wrap pr-12">
+                <div className="text-[14.5px] leading-[1.5] whitespace-pre-wrap pr-12 text-left">
                   {userName ? `${userName.split(' ')[0]}, precisamos` : "Precisamos"} agora entender se nossos serviços e ferramentas se aplicariam ao seu negócio e, claro, te explicar como funcionamos.
                   {"\n\n"}
                   Acesse o vídeo curto, você poderá interagir, respondendo um quiz e no final ainda terá um diagnóstico da sua operação atual e acesso às ferramentas.
@@ -130,13 +130,6 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
           <div className="h-px w-8 bg-black/5"></div>
         </div>
       </footer>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        .system-bubble { border-radius: 0 12px 12px 12px; }
-        .clip-tail-left {
-          clip-path: polygon(100% 0, 100% 100%, 0 0);
-        }
-      `}} />
     </div>
   );
 };
