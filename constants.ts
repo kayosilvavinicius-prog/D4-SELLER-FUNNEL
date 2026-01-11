@@ -1,6 +1,9 @@
 
 export const EXECUTIVE_AVATAR = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/d9cf14d6887c1cad630073a55c3aa042c398ca0e/D4%20PHONE.png";
 
+export const KEYBOARD_SOUND_URL = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/main/mixkit-keyboard-typing-1386.wav";
+export const SENT_SOUND_URL = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/main/whatsapp_sent_sound.mp3";
+
 export const WHATSAPP_1A_MESSAGES = [
   "seja bem-vindo(a).",
   "Eu sou o D4 SELLER e sou responsável pelo seu atendimento aqui.\n\nMas antes de mais nada, eu preciso saber o seu nome.\nPode me responder, por gentileza?"
@@ -25,7 +28,7 @@ export const VSL_STEPS = [
     timestamp: 44,
     question: "Quando um cliente interessado entra em contato, o que normalmente acontece primeiro?",
     options: [
-      { text: "Respondemos rápido, mas cada pessoa conduz a conversa do seu jeito", score: 5 },
+      { text: "Respondemos rápido, mas cada vendedor/atendente conduz a conversa do seu jeito.", score: 5 },
       { text: "Seguimos um roteiro básico, mas adaptamos muito conforme a situação", score: 7 },
       { text: "Temos etapas claras: qualificação → apresentação → proposta → fechamento", score: 10 },
       { text: "Respondemos quando dá e vamos levando a conversa", score: 2 }
@@ -94,7 +97,6 @@ export const SALES_PAGE_CONTENT = {
   ]
 };
 
-// Fix: Adding missing constants required by Quiz, Revelation and WhatsAppSim components
 export const QUESTIONS = [
   {
     question: "Como você descreveria seu processo atual de vendas?",

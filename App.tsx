@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import Experience1A from './components/Experience1A';
 import Experience1B from './components/Experience1B';
@@ -8,9 +9,8 @@ import SalesPage from './components/SalesPage';
 import Menu from './components/Menu';
 import { Experience } from './types';
 import { Zap, Cpu, Loader2, User, Mail, Phone, Settings, X, ChevronRight, Bug } from 'lucide-react';
-import { EXECUTIVE_AVATAR } from './constants';
+import { EXECUTIVE_AVATAR, KEYBOARD_SOUND_URL, SENT_SOUND_URL } from './constants';
 
-const KEYBOARD_SOUND_URL = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/main/mixkit-keyboard-typing-1386.wav";
 const VSL_VIDEO_URL = "https://res.cloudinary.com/dafhibb8s/video/upload/WhatsApp_Video_2026-01-11_at_03.41.56_e51evy.mp4";
 
 const App: React.FC = () => {
@@ -34,6 +34,7 @@ const App: React.FC = () => {
   
   const audioCtxRef = useRef<AudioContext | null>(null);
   const keyboardBufferRef = useRef<AudioBuffer | null>(null);
+  const sentBufferRef = useRef<AudioBuffer | null>(null);
   const videoPreloadRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -56,20 +57,31 @@ const App: React.FC = () => {
           img.onload = resolve;
           img.onerror = resolve;
         });
-        setLoadingProgress(40);
+        setLoadingProgress(30);
 
         const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
         const ctx = new AudioContextClass();
         audioCtxRef.current = ctx;
-        setLoadingProgress(60);
+        setLoadingProgress(50);
 
-        const response = await fetch(KEYBOARD_SOUND_URL);
-        const arrayBuffer = await response.arrayBuffer();
-        keyboardBufferRef.current = await ctx.decodeAudioData(arrayBuffer);
+        const [kbRes, sentRes] = await Promise.all([
+          fetch(KEYBOARD_SOUND_URL),
+          fetch(SENT_SOUND_URL)
+        ]);
+
+        const [kbArr, sentArr] = await Promise.all([
+          kbRes.arrayBuffer(),
+          sentRes.arrayBuffer()
+        ]);
+
+        keyboardBufferRef.current = await ctx.decodeAudioData(kbArr);
+        setLoadingProgress(80);
+        sentBufferRef.current = await ctx.decodeAudioData(sentArr);
         
         setLoadingProgress(100);
         setTimeout(() => setIsAssetsReady(true), 500);
       } catch (error) {
+        console.error("Erro ao carregar assets", error);
         setIsAssetsReady(true);
         setLoadingProgress(100);
       }
@@ -101,14 +113,19 @@ const App: React.FC = () => {
       { type: 'fit', value: 8 }
     ]);
 
+    // Importante: Resumir áudio mesmo no jumpTo
+    if (audioCtxRef.current) audioCtxRef.current.resume();
+    
     setHasUnlockedAudio(true);
     setShowDevMenu(false);
     navigate(next);
   };
 
   const handleStartExperience = () => {
+    // CRÍTICO: Iniciar/Resumir o Contexto de Áudio na interação do usuário
     if (audioCtxRef.current) {
       audioCtxRef.current.resume().then(() => {
+        console.log("Audio Context Ativo");
         setHasUnlockedAudio(true);
         navigate('1A');
       });
@@ -127,7 +144,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-white transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'} overflow-x-hidden max-w-[100vw]`}>
+    <div className={`min-h-screen bg-transparent transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'} overflow-x-hidden max-w-[100vw]`}>
       <button 
         onClick={() => setShowDevMenu(true)}
         className="fixed bottom-6 right-6 z-[9999] w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center text-white shadow-2xl border-4 border-white transition-all transform hover:scale-110 active:scale-90"
@@ -208,9 +225,9 @@ const App: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="z-10 relative">
+        <div className="z-10 relative h-full">
           {currentExp === 'MENU' && <Menu onNavigate={jumpTo} />}
-          {currentExp === '1A' && (<Experience1A onComplete={(name, skipCall) => skipCall ? navigate('1C') : navigate('1B')} userData={userData} preloadedAudioCtx={audioCtxRef.current} preloadedKeyboardBuffer={keyboardBufferRef.current} />)}
+          {currentExp === '1A' && (<Experience1A onComplete={(name, skipCall) => skipCall ? navigate('1C') : navigate('1B')} userData={userData} preloadedAudioCtx={audioCtxRef.current} preloadedKeyboardBuffer={keyboardBufferRef.current} preloadedSentBuffer={sentBufferRef.current} />)}
           {currentExp === '1B' && (<Experience1B onComplete={() => navigate('1C')} />)}
           {currentExp === '1C' && (<Experience1C userName={userData.name} callOutcome={callOutcome} onComplete={() => navigate('2-VSL')} />)}
           {currentExp === '2-VSL' && (<Experience2VSL onComplete={(answers) => { setQuizAnswers(answers); navigate('DIAGNOSTICO'); }} />)}

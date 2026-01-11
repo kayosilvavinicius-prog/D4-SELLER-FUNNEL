@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Phone, MicOff, MoreHorizontal, Video, Check, X, Speaker, User, Grid3X3, Plus, Mic } from 'lucide-react';
 import { CALL_TRANSCRIPT_TIMED, EXECUTIVE_AVATAR } from '../constants';
@@ -76,7 +77,9 @@ const Experience1B: React.FC<{ onComplete: (refused: boolean) => void }> = ({ on
   };
 
   return (
-    <div className="h-screen bg-black flex flex-col items-center justify-between max-w-[430px] mx-auto relative overflow-hidden text-white font-sans">
+    <div className="h-screen bg-black flex flex-col items-center justify-between max-w-[430px] mx-auto relative overflow-hidden text-white font-sans wa-doodle-bg">
+      {/* Doodle pattern overlay defined in global CSS classes is applied via 'wa-doodle-bg' */}
+      
       {/* iOS 17 Contact Poster Background */}
       <div className="absolute inset-0 z-0">
         <img src={EXECUTIVE_AVATAR} className="w-full h-full object-cover opacity-60 scale-110 blur-[40px] transition-all duration-1000" />

@@ -39,9 +39,9 @@ const WhatsAppSim: React.FC = () => {
   }, [messages, isTyping]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 max-w-[100vw] overflow-hidden">
+    <div className="flex flex-col h-screen wa-doodle-bg max-w-[100vw] overflow-hidden">
       {/* iOS Header */}
-      <header className="bg-neutral-50 border-b border-neutral-200 px-4 py-3 flex items-center justify-between shrink-0">
+      <header className="bg-neutral-50 border-b border-neutral-200 px-4 py-3 flex items-center justify-between shrink-0 z-20">
         <div className="flex items-center space-x-2">
           <ChevronLeft className="text-blue-500 w-6 h-6" />
           <div className="flex items-center space-x-3">
@@ -63,16 +63,16 @@ const WhatsAppSim: React.FC = () => {
       {/* Chat Area */}
       <div 
         ref={scrollRef}
-        className="flex-1 whatsapp-bg overflow-y-auto p-4 space-y-4"
+        className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10 scrollbar-hide"
       >
-        <div className="text-center my-6">
+        <div className="text-center my-6 relative z-10">
           <span className="bg-white/80 backdrop-blur-sm text-neutral-500 text-[11px] px-3 py-1 rounded-md shadow-sm uppercase tracking-wider font-medium">
             Hoje
           </span>
         </div>
 
         {messages.map((msg, idx) => (
-          <div key={idx} className="space-y-1 animate-in slide-in-from-left-2 duration-300">
+          <div key={idx} className="space-y-1 animate-in slide-in-from-left-2 duration-300 relative z-10">
             {/* Day Divider */}
             <div className="flex justify-center my-4">
               <span className="bg-blue-100/80 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
@@ -103,7 +103,7 @@ const WhatsAppSim: React.FC = () => {
         ))}
 
         {isTyping && (
-          <div className="max-w-[85%] animate-in fade-in duration-300">
+          <div className="max-w-[85%] animate-in fade-in duration-300 relative z-10">
             <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-none shadow-sm w-16 flex items-center justify-center">
               <div className="flex space-x-1">
                 <div className="w-1.5 h-1.5 bg-neutral-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -115,7 +115,7 @@ const WhatsAppSim: React.FC = () => {
         )}
 
         {currentStep === WHATSAPP_SIMULATION.length && !isTyping && (
-          <div className="pt-8 pb-24 animate-in fade-in zoom-in duration-1000">
+          <div className="pt-8 pb-24 animate-in fade-in zoom-in duration-1000 relative z-10">
             <div className="bg-white/90 backdrop-blur p-6 rounded-3xl border border-neutral-200 shadow-xl text-center">
               <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCheck size={32} />
@@ -138,7 +138,7 @@ const WhatsAppSim: React.FC = () => {
       </div>
 
       {/* iOS Keyboard Placeholder / Footer */}
-      <footer className="bg-neutral-50 border-t border-neutral-200 p-4 shrink-0 flex items-center space-x-3">
+      <footer className="bg-neutral-50 border-t border-neutral-200 p-4 shrink-0 flex items-center space-x-3 z-20">
         <div className="w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-500">
           <span className="text-xl">+</span>
         </div>

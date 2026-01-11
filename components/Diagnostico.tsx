@@ -22,7 +22,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
     label: 'Analítico',
     recommendation: '',
     scaleStrategy: '',
-    ctaText: 'CONTRATAR D4 SELLER',
+    ctaText: 'EU QUERO USAR O D4 SELLER',
     icon: null as any 
   });
   const [isAnimating, setIsAnimating] = useState(true);
@@ -73,7 +73,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
         label: 'Alto Risco', 
         recommendation: "D4 Seller: Sua operação exige automação de condução imediata. O D4 Seller resolverá o gargalo do nível atual.",
         scaleStrategy: "Sua operação está sangrando leads. O Diagnóstico 360 identificou o nível CAÓTICO: a prioridade zero é estancar a perda de margem com o D4 Seller antes de tentar qualquer escala.",
-        ctaText: 'CONTRATAR O D4 SELLER',
+        ctaText: 'EU QUERO USAR O D4 SELLER',
         icon: ShieldAlert 
       };
     } else if (sC <= 4) {
@@ -83,7 +83,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
         label: 'Modo Garçom', 
         recommendation: "D4 Seller: Você atende bem, mas não conduz. O D4 Seller vai inverter essa lógica no seu WhatsApp.",
         scaleStrategy: "Você é nível REATIVO. O Diagnóstico 360 mostra que seu time atua como 'garçom'. O Mecanismo de Escala exige que você assuma a condução ativa das conversas agora.",
-        ctaText: 'CONTRATAR O D4 SELLER',
+        ctaText: 'EU QUERO USAR O D4 SELLER',
         icon: AlertTriangle 
       };
     } else if (sC <= 6) {
@@ -119,9 +119,8 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
     }
 
     // Ajuste final da inteligência do botão:
-    // Se a recomendação ou estratégia for estritamente D4 Seller e sF for baixo, forçamos o botão simples.
     if (sC <= 6 && sF < 6) {
-        lvl.ctaText = 'CONTRATAR O D4 SELLER';
+        lvl.ctaText = 'EU QUERO USAR O D4 SELLER';
     } else {
         lvl.ctaText = 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360';
     }
