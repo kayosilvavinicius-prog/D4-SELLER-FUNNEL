@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ShieldAlert, TrendingUp, CheckCircle, Info, AlertTriangle, Zap, Target, BarChart3, ChevronRight, Share2 } from 'lucide-react';
 
@@ -20,6 +21,8 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
     color: '#333', 
     label: 'Analítico',
     recommendation: '',
+    scaleStrategy: '',
+    ctaText: 'CONTRATAR D4 SELLER',
     icon: null as any 
   });
   const [isAnimating, setIsAnimating] = useState(true);
@@ -53,24 +56,74 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
     const sC = scoreComercial;
     const sF = scoreFit;
 
-    let lvl = { name: '', color: '', label: '', recommendation: '', icon: Info };
+    let lvl = { 
+      name: '', 
+      color: '', 
+      label: '', 
+      recommendation: '', 
+      scaleStrategy: '',
+      ctaText: 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360',
+      icon: Info 
+    };
 
-    if (sC <= 2) lvl = { name: 'CAÓTICO', color: '#ef4444', label: 'Alto Risco', recommendation: '', icon: ShieldAlert };
-    else if (sC <= 4) lvl = { name: 'REATIVO', color: '#f97316', label: 'Modo Garçom', recommendation: '', icon: AlertTriangle };
-    else if (sC <= 6) lvl = { name: 'ESTRUTURADO', color: '#eab308', label: 'Operação Base', recommendation: '', icon: Info };
-    else if (sC <= 8) lvl = { name: 'OTIMIZADO', color: '#3b82f6', label: 'Previsível', recommendation: '', icon: Zap };
-    else lvl = { name: 'EXCELÊNCIA', color: '#22c55e', label: 'Benchmark', recommendation: '', icon: CheckCircle };
-
-    if (sC <= 6 && sF < 6) {
-      lvl.recommendation = "D4 Seller: Sua operação exige automação de condução imediata. O D4 Seller resolverá o gargalo do nível atual.";
-    } else if (sC <= 6 && sF >= 6) {
-      lvl.recommendation = "D4 Seller + Diagnóstico 360: Comece estruturando com o D4 Seller e agende seu Diagnóstico 360 para mapear a transição completa.";
-    } else if (sC > 6 && sF < 6) {
-      lvl.recommendation = "D4 Seller + Diagnóstico 360: Sua performance é boa, mas falha no braço operacional. O combo D4 Seller + Diagnóstico 360 é o ideal.";
-    } else if (sC > 6 && sF >= 6 && sF < 8) {
-      lvl.recommendation = "Diagnóstico 360: Sua operação está madura para escala real. O Diagnóstico 360 removerá os limites de crescimento.";
+    if (sC <= 2) {
+      lvl = { 
+        name: 'CAÓTICO', 
+        color: '#ef4444', 
+        label: 'Alto Risco', 
+        recommendation: "D4 Seller: Sua operação exige automação de condução imediata. O D4 Seller resolverá o gargalo do nível atual.",
+        scaleStrategy: "Sua operação está sangrando leads. O Diagnóstico 360 identificou o nível CAÓTICO: a prioridade zero é estancar a perda de margem com o D4 Seller antes de tentar qualquer escala.",
+        ctaText: 'CONTRATAR O D4 SELLER',
+        icon: ShieldAlert 
+      };
+    } else if (sC <= 4) {
+      lvl = { 
+        name: 'REATIVO', 
+        color: '#f97316', 
+        label: 'Modo Garçom', 
+        recommendation: "D4 Seller: Você atende bem, mas não conduz. O D4 Seller vai inverter essa lógica no seu WhatsApp.",
+        scaleStrategy: "Você é nível REATIVO. O Diagnóstico 360 mostra que seu time atua como 'garçom'. O Mecanismo de Escala exige que você assuma a condução ativa das conversas agora.",
+        ctaText: 'CONTRATAR O D4 SELLER',
+        icon: AlertTriangle 
+      };
+    } else if (sC <= 6) {
+      lvl = { 
+        name: 'ESTRUTURADO', 
+        color: '#eab308', 
+        label: 'Operação Base', 
+        recommendation: "D4 Seller + Diagnóstico 360: Sua base é sólida, mas falta previsibilidade de fechamento em escala.",
+        scaleStrategy: "Você atingiu o nível ESTRUTURADO. O Diagnóstico 360 validou sua base. O próximo passo do seu Mecanismo de Escala é automatizar a qualificação via D4 Seller para ganhar tração.",
+        ctaText: 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360',
+        icon: Info 
+      };
+    } else if (sC <= 8) {
+      lvl = { 
+        name: 'OTIMIZADO', 
+        color: '#3b82f6', 
+        label: 'Previsível', 
+        recommendation: "Diagnóstico 360: Sua operação é previsível. O Diagnóstico 360 removerá os limites invisíveis de crescimento.",
+        scaleStrategy: "Parabéns, seu status é OTIMIZADO. O Diagnóstico 360 indica uma operação madura. O Mecanismo de Escala foca agora em diminuir o CAC e aumentar seu LTV.",
+        ctaText: 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360',
+        icon: Zap 
+      };
     } else {
-      lvl.recommendation = "Diagnóstico 360 Premium: Você já é benchmark no setor. O Diagnóstico 360 Premium focará em otimização de lucro e novos canais.";
+      lvl = { 
+        name: 'EXCELÊNCIA', 
+        color: '#22c55e', 
+        label: 'Benchmark', 
+        recommendation: "Diagnóstico 360 Premium: Você já é benchmark. Focaremos em otimização de lucro e novos canais.",
+        scaleStrategy: "Status: EXCELÊNCIA. Você é o benchmark do setor. O Diagnóstico 360 Premium é o seu passaporte para dominação total de mercado e novos canais de aquisição.",
+        ctaText: 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360',
+        icon: CheckCircle 
+      };
+    }
+
+    // Ajuste final da inteligência do botão:
+    // Se a recomendação ou estratégia for estritamente D4 Seller e sF for baixo, forçamos o botão simples.
+    if (sC <= 6 && sF < 6) {
+        lvl.ctaText = 'CONTRATAR O D4 SELLER';
+    } else {
+        lvl.ctaText = 'CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360';
     }
 
     setLevel(lvl);
@@ -129,7 +182,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
               <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/5">
                  <p className="text-[9px] font-black text-white/30 uppercase block mb-3 tracking-widest">💬 Recomendação Estratégica:</p>
                  <p className="text-sm sm:text-base font-medium text-white/80 leading-relaxed italic">
-                   "{level.recommendation.split(': ')[1] || level.recommendation}"
+                   "{level.recommendation}"
                  </p>
               </div>
            </div>
@@ -141,7 +194,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
              <div className="relative z-10 space-y-5">
                 <h3 className="text-xl sm:text-2xl font-black italic tracking-tighter uppercase leading-tight">Mecanismo de Escala</h3>
                 <p className="text-white/80 text-xs sm:text-sm leading-relaxed">
-                  Com base no seu nível <strong>{level.name}</strong>, a solução mandatória é a ativação do D4 Seller em conjunto com o nosso <strong>Diagnóstico 360</strong>.
+                  {level.scaleStrategy}
                 </p>
                 
                 <button 
@@ -149,7 +202,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
                   className="w-full bg-white text-black py-5 px-4 rounded-2xl font-black text-sm sm:text-base hover:bg-neutral-100 transition-all flex items-center justify-center space-x-2 uppercase tracking-tighter shadow-2xl active:scale-95 leading-tight text-center"
                 >
                    <span className="flex-1">
-                     CONTRATAR D4 SELLER E AGENDAR DIAGNÓSTICO 360
+                     {level.ctaText}
                    </span>
                    <ChevronRight size={22} className="shrink-0" />
                 </button>
