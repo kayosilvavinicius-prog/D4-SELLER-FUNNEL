@@ -13,22 +13,98 @@ const Experience1B: React.FC<{ onComplete: (refused: boolean) => void }> = ({ on
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ringingRef = useRef<HTMLAudioElement | null>(null);
+  const vibrationIntervalRef = useRef<number | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const vibrationOscRef = useRef<OscillatorNode | null>(null);
+  const vibrationGainRef = useRef<GainNode | null>(null);
+
+  // Função para criar o som de vibração sintetizado
+  const startVibrationAudio = () => {
+    if (!audioCtxRef.current) {
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      audioCtxRef.current = new AudioContextClass();
+    }
+    const ctx = audioCtxRef.current!;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'sawtooth'; // Som mais "sujo" para simular atrito
+    osc.frequency.setValueAtTime(110, ctx.currentTime); // Frequência baixa de vibração
+    
+    // Filtro para suavizar o som e deixá-lo mais abafado (como um celular na mesa)
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(400, ctx.currentTime);
+
+    // Envelope de pulsação (500ms on, 500ms off)
+    const now = ctx.currentTime;
+    const pulseLen = 1.0; // Ciclo total de 1s
+    
+    gain.gain.setValueAtTime(0, now);
+    
+    // Cria a automação de pulso infinitamente
+    for(let i = 0; i < 60; i++) { // Garante 60 segundos de pulso
+      const start = now + (i * pulseLen);
+      gain.gain.setTargetAtTime(0.08, start, 0.05); // Liga o som (volume baixo)
+      gain.gain.setTargetAtTime(0, start + 0.5, 0.05); // Desliga após 500ms
+    }
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    vibrationOscRef.current = osc;
+    vibrationGainRef.current = gain;
+  };
+
+  const stopVibrationAudio = () => {
+    if (vibrationOscRef.current) {
+      try { vibrationOscRef.current.stop(); } catch(e) {}
+      vibrationOscRef.current = null;
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+      // Opcionalmente não fecha o contexto para reuso
+    }
+  };
 
   useEffect(() => {
     if (status === 'ringing') {
+      // Som de toque (Ringtone)
       const audio = new Audio(RINGING_AUDIO_URL);
       audio.loop = true;
-      audio.volume = 0.4;
+      audio.volume = 0.5;
       audio.play().catch(() => console.log("Aguardando interação para áudio"));
       ringingRef.current = audio;
+
+      // Inicia som de vibração sintetizado
+      startVibrationAudio();
+
+      // Vibração física do dispositivo (Haptic Feedback)
+      if ("vibrate" in navigator) {
+        navigator.vibrate([500, 500]);
+        vibrationIntervalRef.current = window.setInterval(() => {
+          navigator.vibrate([500, 500]);
+        }, 1000);
+      }
     } else {
       if (ringingRef.current) {
         ringingRef.current.pause();
         ringingRef.current = null;
       }
+      stopVibrationAudio();
+      if (vibrationIntervalRef.current) {
+        clearInterval(vibrationIntervalRef.current);
+        navigator.vibrate(0);
+      }
     }
     return () => {
       if (ringingRef.current) ringingRef.current.pause();
+      stopVibrationAudio();
+      if (vibrationIntervalRef.current) clearInterval(vibrationIntervalRef.current);
+      navigator.vibrate(0);
     };
   }, [status]);
 
@@ -42,11 +118,13 @@ const Experience1B: React.FC<{ onComplete: (refused: boolean) => void }> = ({ on
   const handleDecline = () => {
     if (audioRef.current) audioRef.current.pause();
     if (ringingRef.current) ringingRef.current.pause();
+    stopVibrationAudio();
     setStatus('ended');
     onComplete(true);
   };
 
   const handleAccept = () => {
+    stopVibrationAudio();
     setStatus('connected');
     const audio = new Audio(CALL_AUDIO_URL);
     audio.preload = "auto";
@@ -78,8 +156,6 @@ const Experience1B: React.FC<{ onComplete: (refused: boolean) => void }> = ({ on
 
   return (
     <div className="h-screen bg-black flex flex-col items-center justify-between max-w-[430px] mx-auto relative overflow-hidden text-white font-sans wa-doodle-bg">
-      {/* Doodle pattern overlay defined in global CSS classes is applied via 'wa-doodle-bg' */}
-      
       {/* iOS 17 Contact Poster Background */}
       <div className="absolute inset-0 z-0">
         <img src={EXECUTIVE_AVATAR} className="w-full h-full object-cover opacity-60 scale-110 blur-[40px] transition-all duration-1000" />
@@ -87,11 +163,11 @@ const Experience1B: React.FC<{ onComplete: (refused: boolean) => void }> = ({ on
       </div>
 
       {/* Header Info */}
-      <div className="pt-24 text-center z-10 w-full px-8 space-y-2">
+      <div className={`pt-24 text-center z-10 w-full px-8 space-y-2 ${status === 'ringing' ? 'animate-vibrate' : ''}`}>
         <div className="w-32 h-32 bg-white/10 rounded-full mx-auto flex items-center justify-center mb-8 shadow-2xl border border-white/20 overflow-hidden backdrop-blur-md ring-4 ring-white/10">
           <img src={EXECUTIVE_AVATAR} alt="D4 Seller" className="w-full h-full object-cover" />
         </div>
-        <h1 className="text-4xl font-bold tracking-tight mb-2 drop-shadow-lg">D4 PHONE</h1>
+        <h1 className="text-4xl font-bold tracking-tight mb-2 drop-shadow-lg uppercase italic">D4 PHONE</h1>
         <p className="text-white/70 font-medium text-lg drop-shadow-md">
           {status === 'ringing' ? 'WhatsApp de voz...' : `em ligação • ${formatTime(time)}`}
         </p>
@@ -114,7 +190,7 @@ const Experience1B: React.FC<{ onComplete: (refused: boolean) => void }> = ({ on
                 <div className="w-3 h-3 bg-white/40 rounded-full animate-pulse [animation-delay:200ms]"></div>
                 <div className="w-3 h-3 bg-white/40 rounded-full animate-pulse [animation-delay:400ms]"></div>
               </div>
-              <p className="text-white/40 uppercase tracking-[0.3em] text-[10px] font-black">Aguardando atendimento</p>
+              <p className="text-white/40 uppercase tracking-[0.3em] text-[10px] font-black">Mecanismo Identificado</p>
             </div>
           )}
         </div>
@@ -189,6 +265,20 @@ const Experience1B: React.FC<{ onComplete: (refused: boolean) => void }> = ({ on
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes vibrate {
+          0% { transform: translate(0); }
+          20% { transform: translate(-2px, 2px); }
+          40% { transform: translate(-2px, -2px); }
+          60% { transform: translate(2px, 2px); }
+          80% { transform: translate(2px, -2px); }
+          100% { transform: translate(0); }
+        }
+        .animate-vibrate {
+          animation: vibrate 0.1s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };

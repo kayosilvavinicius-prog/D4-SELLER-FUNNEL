@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import Experience1A from './components/Experience1A';
 import Experience1B from './components/Experience1B';
@@ -9,7 +8,7 @@ import SalesPage from './components/SalesPage';
 import Menu from './components/Menu';
 import { Experience } from './types';
 import { Zap, Cpu, Loader2, User, Mail, Phone, Settings, X, ChevronRight, Bug } from 'lucide-react';
-import { EXECUTIVE_AVATAR, KEYBOARD_SOUND_URL, SENT_SOUND_URL } from './constants';
+import { EXECUTIVE_AVATAR } from './constants';
 
 const VSL_VIDEO_URL = "https://res.cloudinary.com/dafhibb8s/video/upload/WhatsApp_Video_2026-01-11_at_03.41.56_e51evy.mp4";
 
@@ -37,6 +36,56 @@ const App: React.FC = () => {
   const sentBufferRef = useRef<AudioBuffer | null>(null);
   const videoPreloadRef = useRef<HTMLVideoElement | null>(null);
 
+  // --- GERADORES DE ÁUDIO SINTÉTICO ---
+  
+  // Gera um som de digitação (vários cliques curtos de ruído branco em 1s)
+  const createKeyboardTypingBuffer = (ctx: AudioContext) => {
+    const sampleRate = ctx.sampleRate;
+    const duration = 1.0; // 1 segundo de amostra
+    const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    // Acelerado: 10 cliques em intervalos de 0.1s (mais rápido)
+    for (let i = 0; i < 10; i++) {
+      const startTime = (i * 0.1) + (Math.random() * 0.03); // Intervalo menor + jitter menor
+      const startSample = Math.floor(startTime * sampleRate);
+      const clickDuration = 0.012; // 12ms de clique (mais seco/rápido)
+      const clickSamples = Math.floor(clickDuration * sampleRate);
+      
+      for (let j = 0; j < clickSamples; j++) {
+        if (startSample + j < data.length) {
+          const envelope = Math.pow(1 - j / clickSamples, 3);
+          // Ruído branco filtrado
+          data[startSample + j] = (Math.random() * 2 - 1) * envelope * 0.35;
+        }
+      }
+    }
+    return buffer;
+  };
+
+  // Gera um som de "Mensagem Enviada" (Bloop harmônico ascendente)
+  const createSentMessageBuffer = (ctx: AudioContext) => {
+    const sampleRate = ctx.sampleRate;
+    const duration = 0.18;
+    const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    for (let i = 0; i < sampleRate * duration; i++) {
+      const t = i / (sampleRate * duration);
+      // Sweep de frequência: de 800Hz para 1400Hz
+      const freq = 800 + 600 * t;
+      const envelope = Math.pow(1 - t, 2);
+      data[i] = Math.sin(2 * Math.PI * freq * (i / sampleRate)) * envelope * 0.3;
+    }
+    return buffer;
+  };
+
+  // Validação do formulário
+  const isFormValid = 
+    userData.name.trim().length > 2 && 
+    userData.email.trim().includes('@') && 
+    userData.phone.replace(/\D/g, '').length >= 10;
+
   useEffect(() => {
     if ((userData.name.length > 0 || userData.email.length > 0) && !isPreloadingVideo) {
       setIsPreloadingVideo(true);
@@ -51,37 +100,30 @@ const App: React.FC = () => {
     const preloadAssets = async () => {
       try {
         setLoadingProgress(10);
+        // Preload Imagem (Avatar)
         const img = new Image();
         img.src = EXECUTIVE_AVATAR;
         await new Promise((resolve) => {
           img.onload = resolve;
           img.onerror = resolve;
         });
-        setLoadingProgress(30);
+        setLoadingProgress(40);
 
+        // Inicializar Contexto de Áudio
         const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
         const ctx = new AudioContextClass();
         audioCtxRef.current = ctx;
-        setLoadingProgress(50);
+        setLoadingProgress(60);
 
-        const [kbRes, sentRes] = await Promise.all([
-          fetch(KEYBOARD_SOUND_URL),
-          fetch(SENT_SOUND_URL)
-        ]);
-
-        const [kbArr, sentArr] = await Promise.all([
-          kbRes.arrayBuffer(),
-          sentRes.arrayBuffer()
-        ]);
-
-        keyboardBufferRef.current = await ctx.decodeAudioData(kbArr);
+        // Gerar áudios sintéticos (Instantâneo, sem rede!)
+        keyboardBufferRef.current = createKeyboardTypingBuffer(ctx);
         setLoadingProgress(80);
-        sentBufferRef.current = await ctx.decodeAudioData(sentArr);
+        sentBufferRef.current = createSentMessageBuffer(ctx);
         
         setLoadingProgress(100);
         setTimeout(() => setIsAssetsReady(true), 500);
       } catch (error) {
-        console.error("Erro ao carregar assets", error);
+        console.error("Erro na inicialização de assets:", error);
         setIsAssetsReady(true);
         setLoadingProgress(100);
       }
@@ -113,7 +155,6 @@ const App: React.FC = () => {
       { type: 'fit', value: 8 }
     ]);
 
-    // Importante: Resumir áudio mesmo no jumpTo
     if (audioCtxRef.current) audioCtxRef.current.resume();
     
     setHasUnlockedAudio(true);
@@ -122,10 +163,10 @@ const App: React.FC = () => {
   };
 
   const handleStartExperience = () => {
-    // CRÍTICO: Iniciar/Resumir o Contexto de Áudio na interação do usuário
+    if (!isFormValid) return;
+    
     if (audioCtxRef.current) {
       audioCtxRef.current.resume().then(() => {
-        console.log("Audio Context Ativo");
         setHasUnlockedAudio(true);
         navigate('1A');
       });
@@ -193,7 +234,7 @@ const App: React.FC = () => {
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-none">D4 <span className="text-blue-500">Kingdom</span></h1>
-              <p className="text-neutral-500 text-[10px] font-bold tracking-[0.3em] uppercase">Acesso ao Mecanismo de Condução</p>
+              <p className="text-neutral-500 text-[10px] font-bold tracking-[0.3em] uppercase">Acesso ao Mecanismo de Condução de Vendas Inteligente - D4 SELLER</p>
             </div>
             <div className="space-y-4 bg-white/5 p-6 rounded-[2rem] border border-white/10 backdrop-blur-xl shadow-2xl">
               <div className="relative">
@@ -215,8 +256,16 @@ const App: React.FC = () => {
                     <span className="text-[9px] text-neutral-500 uppercase font-black tracking-widest">Sincronizando... {loadingProgress}%</span>
                   </div>
                 ) : (
-                  <button onClick={handleStartExperience} className="group w-full py-4 rounded-xl font-black text-sm bg-blue-600 hover:bg-blue-500 text-white transition-all flex items-center justify-center space-x-2 shadow-xl shadow-blue-500/10 active:scale-95">
-                    <span>ACESSAR MECANISMO</span>
+                  <button 
+                    onClick={handleStartExperience} 
+                    disabled={!isFormValid}
+                    className={`group w-full py-4 rounded-xl font-black text-sm transition-all flex items-center justify-center space-x-2 shadow-xl active:scale-95 ${
+                      isFormValid 
+                        ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/10 animate-pulse-gentle' 
+                        : 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-50'
+                    }`}
+                  >
+                    <span>VER O MECANISMO EM AÇÃO</span>
                     <Zap size={16} className="fill-current" />
                   </button>
                 )}
@@ -227,8 +276,19 @@ const App: React.FC = () => {
       ) : (
         <div className="z-10 relative h-full">
           {currentExp === 'MENU' && <Menu onNavigate={jumpTo} />}
-          {currentExp === '1A' && (<Experience1A onComplete={(name, skipCall) => skipCall ? navigate('1C') : navigate('1B')} userData={userData} preloadedAudioCtx={audioCtxRef.current} preloadedKeyboardBuffer={keyboardBufferRef.current} preloadedSentBuffer={sentBufferRef.current} />)}
-          {currentExp === '1B' && (<Experience1B onComplete={() => navigate('1C')} />)}
+          {currentExp === '1A' && (<Experience1A onComplete={(name, skipCall) => {
+            if (skipCall) {
+              setCallOutcome('skipped');
+              navigate('1C');
+            } else {
+              setCallOutcome('completed');
+              navigate('1B');
+            }
+          }} userData={userData} preloadedAudioCtx={audioCtxRef.current} preloadedKeyboardBuffer={keyboardBufferRef.current} preloadedSentBuffer={sentBufferRef.current} />)}
+          {currentExp === '1B' && (<Experience1B onComplete={(refused) => {
+            if (refused) setCallOutcome('refused');
+            navigate('1C');
+          }} />)}
           {currentExp === '1C' && (<Experience1C userName={userData.name} callOutcome={callOutcome} onComplete={() => navigate('2-VSL')} />)}
           {currentExp === '2-VSL' && (<Experience2VSL onComplete={(answers) => { setQuizAnswers(answers); navigate('DIAGNOSTICO'); }} />)}
           {currentExp === 'DIAGNOSTICO' && (<Diagnostico answers={quizAnswers} onComplete={() => navigate('SALES')} />)}

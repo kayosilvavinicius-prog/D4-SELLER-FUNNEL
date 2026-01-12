@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, Phone, Video, MoreVertical, CheckCheck, Send, Paperclip, Smile, Camera, Mic } from 'lucide-react';
 import { WhatsAppMessage } from '../types';
@@ -135,7 +134,15 @@ const Experience1A: React.FC<Experience1AProps> = ({
 
     if (inputStep === 'confirmation') {
       setInputStep('none');
-      const isNegative = /n[ãa]o|not|nem|agora n|n[ãa]o posso/i.test(value);
+      
+      // Normalização robusta: remove acentos e caracteres especiais para comparação
+      const normalizedValue = value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+      
+      // Verifica se a resposta contém palavras-chave negativas
+      const isNegative = /nao|not|nem|agora n|nao posso|nunca|jamais/i.test(normalizedValue);
 
       setTimeout(() => {
         setIsTyping(true);
@@ -184,7 +191,7 @@ const Experience1A: React.FC<Experience1AProps> = ({
                 setIsTyping(true);
                 setTimeout(() => {
                   setIsTyping(false);
-                  addSystemMessage("Aviso:\nEsta experiência foi desenhada para ser rápida e economizar semanas de reuniões inúteis. Em poucos minutos, você vai entender como o Mecanismo de Condução Inteligente transforma o seu WhatsApp em uma máquina de lucro previsível.");
+                  addSystemMessage("Aviso:\nEsta experiência foi desenhada para ser rápida, porém imersiva, para empresários cujo o atendimento via whatsapp realmente seja um problema a ser resolvido. Em poucos minutos, você vai entender como o Mecanismo de Condução Inteligente transforma o seu WhatsApp em uma máquina de lucro previsível.");
                   
                   setTimeout(() => {
                     setIsTyping(true);

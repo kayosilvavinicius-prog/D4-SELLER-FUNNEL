@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, PlayCircle, MoreVertical, Video, Phone } from 'lucide-react';
 import { EXECUTIVE_AVATAR } from '../constants';
@@ -23,7 +22,8 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
     }
   }, [showMessages]);
 
-  const shouldShowFallMessage = callOutcome === 'refused';
+  const isRefused = callOutcome === 'refused';
+  const isSkipped = callOutcome === 'skipped';
 
   return (
     <div className="h-screen wa-doodle-bg max-w-[430px] mx-auto flex flex-col font-sans relative overflow-hidden shadow-2xl">
@@ -74,7 +74,7 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
 
         {showMessages && (
           <div className="space-y-4 relative z-10">
-            {shouldShowFallMessage && (
+            {isRefused && (
               <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="bg-white system-bubble max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03]">
                   <div className="text-[14.5px] leading-[1.5] pr-12 text-left">
@@ -88,9 +88,23 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
               </div>
             )}
 
+            {isSkipped && (
+              <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="bg-white system-bubble max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03]">
+                  <div className="text-[14.5px] leading-[1.5] pr-12 text-left">
+                    Ok, como você não pode atender agora, sem problemas. Seguimos por aqui.
+                  </div>
+                  <div className="flex items-center justify-end space-x-1 mt-0.5">
+                    <span className="text-[9.5px] text-[#667781]/70 font-semibold uppercase">Agora</span>
+                  </div>
+                  <div className="absolute top-0 -left-1.5 w-3 h-3 bg-white clip-tail-left"></div>
+                </div>
+              </div>
+            )}
+
             <div 
               className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-500" 
-              style={{animationDelay: shouldShowFallMessage ? '0.8s' : '0s'}}
+              style={{animationDelay: (isRefused || isSkipped) ? '0.8s' : '0s'}}
             >
               <div className="bg-white system-bubble max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03]">
                 <div className="text-[14.5px] leading-[1.5] whitespace-pre-wrap pr-12 text-left">
