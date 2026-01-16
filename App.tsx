@@ -155,7 +155,7 @@ const App: React.FC = () => {
           {currentExp === '1C' && <Experience1C userName={userData.name} callOutcome={callOutcome} onComplete={() => navigateWithTrack('2-VSL', 'ETAPA_VSL_STARTED')} />}
           {currentExp === '2-VSL' && <Experience2VSL onComplete={handleQuizCompletion} />}
           {currentExp === 'DIAGNOSTICO' && <Diagnostico answers={quizAnswers} onComplete={() => navigateWithTrack('SALES', 'ETAPA_SALES_PAGE_VIEW')} />}
-          {currentExp === 'SALES' && <SalesPage />}
+          {currentExp === 'SALES' && <SalesPage onTrack={trackMilestone} />}
         </div>
       )}
     </div>

@@ -76,7 +76,11 @@ import {
 } from '../constants';
 import PrivacyModal from './PrivacyModal';
 
-const SalesPage: React.FC = () => {
+interface SalesPageProps {
+  onTrack?: (eventName: string, extraData?: any) => void;
+}
+
+const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [isExpertExpanded, setIsExpertExpanded] = useState(false);
@@ -92,12 +96,21 @@ const SalesPage: React.FC = () => {
   }, []);
 
   const scrollToOffers = () => {
+    // Tracking do clique no CTA
+    if (onTrack) onTrack('CLIQUE_CTA_PAGINA_VENDAS');
+    
     const element = document.getElementById('offer-147');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
       document.getElementById('offers')?.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleExternalOfferClick = (plano: string) => {
+    if (onTrack) onTrack('CLIQUE_BOTAO_COMPRA', { plano });
+    // Aqui viria o link do checkout (Hotmart, Kiwify, etc)
+    console.log(`Redirecionando para checkout: ${plano}`);
   };
 
   const testimonials = [
@@ -537,7 +550,10 @@ const SalesPage: React.FC = () => {
               </div>
 
               <div className="pt-12">
-                <button className="w-full py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white hover:text-[#0B0C10] transition-all uppercase tracking-widest text-xs active:scale-95 shadow-xl">
+                <button 
+                  onClick={() => handleExternalOfferClick('D4_SELLER_MENSAL')}
+                  className="w-full py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white hover:text-[#0B0C10] transition-all uppercase tracking-widest text-xs active:scale-95 shadow-xl"
+                >
                   CONTRATAR D4 SELLER MENSAL
                 </button>
               </div>
@@ -599,7 +615,10 @@ const SalesPage: React.FC = () => {
               </div>
 
               <div className="pt-12 relative z-10">
-                <button className="w-full py-6 bg-[#66FCF1] text-[#0B0C10] font-black rounded-2xl shadow-glow-cyan hover:scale-[1.03] transition-all uppercase tracking-[0.2em] text-sm active:scale-95 flex items-center justify-center space-x-3">
+                <button 
+                  onClick={() => handleExternalOfferClick('D4_SELLER_DIAGNOSTICO_147')}
+                  className="w-full py-6 bg-[#66FCF1] text-[#0B0C10] font-black rounded-2xl shadow-glow-cyan hover:scale-[1.03] transition-all uppercase tracking-[0.2em] text-sm active:scale-95 flex items-center justify-center space-x-3"
+                >
                   <span>RESERVAR MEU DIAGNÓSTICO 360</span>
                   <ArrowRight size={20} />
                 </button>
