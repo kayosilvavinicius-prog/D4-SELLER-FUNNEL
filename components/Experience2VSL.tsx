@@ -75,7 +75,8 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
   };
 
   const handleFinalStep = () => {
-    const finalAnswers = Object.values(answers).map(a => ({ type: a.type, value: a.score }));
+    // Fixed: Explicitly cast Object.values to the correct type to avoid 'unknown' errors
+    const finalAnswers = (Object.values(answers) as { type: string, score: number }[]).map(a => ({ type: a.type, value: a.score }));
     const missing = VSL_STEPS.filter(s => !answers[s.id]).map(s => ({ type: s.type, value: 0 }));
     onComplete([...finalAnswers, ...missing]);
   };

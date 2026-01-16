@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   ChevronDown, 
@@ -64,7 +63,6 @@ import {
   Car,
   Plane,
   Plus,
-  // Added ShoppingCart to fix the build error
   ShoppingCart
 } from 'lucide-react';
 import { 
@@ -383,7 +381,7 @@ const SalesPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. DEPOIMENTOS (NOVA SEÇÃO) */}
+      {/* 4. DEPOIMENTOS */}
       <section className="py-24 px-6 bg-[#0B0C10] border-y border-white/5">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 space-y-4">
@@ -421,7 +419,7 @@ const SalesPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. NICHOS VALIDADOS (NOVA SEÇÃO) */}
+      {/* 5. NICHOS VALIDADOS */}
       <section className="py-24 px-6 bg-[#050505]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 space-y-4">
@@ -446,13 +444,16 @@ const SalesPage: React.FC = () => {
             <div className="w-16 h-16 bg-[#66FCF1]/10 rounded-full flex items-center justify-center mx-auto text-[#66FCF1]">
               <Plus size={32} />
             </div>
-            <h3 className="text-2xl font-black uppercase italic italic tracking-tighter">Não encontrou seu nicho aqui?</h3>
+            <h3 className="text-2xl font-black uppercase italic tracking-tighter">Não encontrou seu nicho aqui?</h3>
             <p className="text-[#C5C6C7] font-light leading-relaxed max-w-xl mx-auto">
-              Nossa engenharia de vendas é highly adaptável. Se você vende pelo WhatsApp, nós podemos otimizar seu processo. Fale com nosso suporte para entender como adaptamos a solução para sua realidade específica.
+              Nossa engenharia de vendas é altamente adaptável. Se você vende pelo WhatsApp, nós podemos otimizar seu processo transformando atendimentos em lucro previsível através do nosso método validado.
             </p>
-            <button className="px-8 py-4 bg-[#66FCF1]/10 border border-[#66FCF1]/30 text-[#66FCF1] font-black text-sm rounded-2xl hover:bg-[#66FCF1] hover:text-[#0B0C10] transition-all uppercase tracking-widest active:scale-95">
-              CONSULTAR VIABILIDADE TÉCNICA
-            </button>
+            <div className="pt-4">
+              <button className="px-8 py-5 bg-[#66FCF1] text-[#0B0C10] font-black text-sm rounded-2xl shadow-glow-cyan hover:scale-[1.03] transition-all uppercase tracking-[0.2em] active:scale-95 flex items-center justify-center space-x-3 mx-auto">
+                <span>ACESSAR O D4 SELLER + REUNIÃO DE DIAGNÓSTICO</span>
+                <ArrowRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -529,7 +530,7 @@ const SalesPage: React.FC = () => {
             {/* PLANO 2: D4 SELLER + DIAGNÓSTICO (ESTRELA) */}
             <div className="group relative bg-[#0B0C10] p-10 rounded-[3rem] border-2 border-[#66FCF1] shadow-glow-cyan transition-all duration-500 flex flex-col justify-between overflow-hidden">
               <div className="absolute top-0 right-0 bg-[#66FCF1] text-[#0B0C10] px-8 py-3 font-black text-[11px] uppercase tracking-widest rounded-bl-[2rem] shadow-lg z-10">
-                OFERTA IRRESISTÍVEL
+                MELHOR CUSTO BENEFÍCIO
               </div>
               
               <div className="space-y-10 relative z-10">
@@ -629,14 +630,14 @@ const SalesPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 8. FAQ (REDESIGNED & POSITIONED BEFORE EXPERT) */}
+      {/* 8. PERGUNTAS FREQUENTES (REPOSICIONADO E REDESENHADO) */}
       <section className="py-24 px-6 max-w-4xl mx-auto">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-center">
             Perguntas <span className="text-[#66FCF1]">Frequentes</span>
           </h2>
           <p className="text-[#C5C6C7] font-light max-w-xl mx-auto">
-            Esclareça suas dúvidas técnicas e operacionais sobre o D4 Seller.
+            Esclareça suas dúvidas técnicas e operacionais sobre o ecossistema D4 Seller.
           </p>
         </div>
 
@@ -644,27 +645,27 @@ const SalesPage: React.FC = () => {
           {faqs.map((faq, i) => (
             <div 
               key={i} 
-              className={`rounded-3xl border transition-all duration-300 overflow-hidden ${
+              className={`rounded-3xl border transition-all duration-500 overflow-hidden ${
                 openFaq === i 
-                ? 'bg-[#1F2833] border-[#66FCF1]/30 shadow-glow-cyan/10' 
-                : 'bg-[#1F2833]/30 border-white/5 hover:border-white/10'
+                ? 'bg-[#1F2833] border-[#66FCF1]/40 shadow-glow-cyan/10' 
+                : 'bg-[#1F2833]/30 border-white/5 hover:border-white/10 hover:bg-[#1F2833]/50'
               }`}
             >
               <button 
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 className="w-full flex items-center justify-between p-7 text-left group"
               >
-                <span className={`font-bold text-lg transition-colors ${openFaq === i ? 'text-[#66FCF1]' : 'text-white'}`}>
+                <span className={`font-bold text-lg transition-colors duration-300 ${openFaq === i ? 'text-[#66FCF1]' : 'text-white/90'}`}>
                   {faq.q}
                 </span>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                  openFaq === i ? 'bg-[#66FCF1] text-[#0B0C10] rotate-180' : 'bg-white/5 text-white/40'
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
+                  openFaq === i ? 'bg-[#66FCF1] text-[#0B0C10] rotate-180 shadow-glow-cyan' : 'bg-white/5 text-white/40'
                 }`}>
-                  <ChevronDown size={22} />
+                  <ChevronDown size={22} className="stroke-[2.5px]" />
                 </div>
               </button>
               {openFaq === i && (
-                <div className="px-7 pb-8 text-[#C5C6C7] leading-relaxed animate-in fade-in slide-in-from-top-2 duration-300 text-left font-light border-t border-white/5 pt-6">
+                <div className="px-7 pb-8 text-[#C5C6C7] leading-relaxed animate-in fade-in slide-in-from-top-4 duration-500 text-left font-light border-t border-white/5 pt-6">
                   {faq.a}
                 </div>
               )}
@@ -694,7 +695,7 @@ const SalesPage: React.FC = () => {
               </div>
               <div className="space-y-6">
                 <p className="text-xl leading-relaxed text-[#C5C6C7]">
-                  Meu nome é <strong>Kayo Vinícius</strong>, sou <strong>esposo da Aline Neves e pai da Alicia, Matteo e Maya</strong>, <strong>Engenheiro Eletricista</strong> (Unicamp), <strong>mentor, palestrante e consultor de empresas</strong>. Sou o criador do método <strong>Receita 360</strong>.
+                  Meu nome é <strong>Kayo Vinícius</strong>, sou <strong>esposo da Aline Neves e pai da Alicia, Matteo e Maya</strong>, <strong>Técnico em Eletrônica (Unicamp)</strong>, <strong>Engenheiro Eletricista</strong>, mentor, palestrante e consultor de empresas. Ao descobrir, na prática, o poder do conhecimento técnico aplicado às vendas, desenvolvi o método <strong>Receita 360</strong>.
                 </p>
                 <p className="text-sm leading-relaxed text-[#C5C6C7]/80 italic border-l-2 border-[#66FCF1] pl-4">
                   Formado em Vendas por <strong>Flávio Augusto e Caio Carneiro</strong>, além de integrar o <strong>Mastermind de Marketing Digital do Érico Rocha</strong>.

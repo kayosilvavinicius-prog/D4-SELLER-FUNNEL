@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import Experience1A from './components/Experience1A';
 import Experience1B from './components/Experience1B';
@@ -12,11 +13,15 @@ import { EXECUTIVE_AVATAR } from './constants';
 
 const VSL_VIDEO_URL = "https://res.cloudinary.com/dafhibb8s/video/upload/WhatsApp_Video_2026-01-11_at_03.41.56_e51evy.mp4";
 
+// URL fornecida pelo usuário
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyyIrs2tO1SenLzEms_XdY9Ve2sPLfwbeDhcZ-2m7EL3lMa_uAHykKy3MQNs8mmUX-4Zw/exec"; 
+
 const App: React.FC = () => {
   const [currentExp, setCurrentExp] = useState<Experience>('MENU');
   const [isFading, setIsFading] = useState(false);
   const [hasUnlockedAudio, setHasUnlockedAudio] = useState(false);
   const [showDevMenu, setShowDevMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [userData, setUserData] = useState({
     name: '',
@@ -36,26 +41,19 @@ const App: React.FC = () => {
   const sentBufferRef = useRef<AudioBuffer | null>(null);
   const videoPreloadRef = useRef<HTMLVideoElement | null>(null);
 
-  // --- GERADORES DE ÁUDIO SINTÉTICO ---
-  
-  // Gera um som de digitação (vários cliques curtos de ruído branco em 1s)
   const createKeyboardTypingBuffer = (ctx: AudioContext) => {
     const sampleRate = ctx.sampleRate;
-    const duration = 1.0; // 1 segundo de amostra
+    const duration = 1.0; 
     const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
-    // Acelerado: 10 cliques em intervalos de 0.1s (mais rápido)
     for (let i = 0; i < 10; i++) {
-      const startTime = (i * 0.1) + (Math.random() * 0.03); // Intervalo menor + jitter menor
+      const startTime = (i * 0.1) + (Math.random() * 0.03);
       const startSample = Math.floor(startTime * sampleRate);
-      const clickDuration = 0.012; // 12ms de clique (mais seco/rápido)
+      const clickDuration = 0.012;
       const clickSamples = Math.floor(clickDuration * sampleRate);
-      
       for (let j = 0; j < clickSamples; j++) {
         if (startSample + j < data.length) {
           const envelope = Math.pow(1 - j / clickSamples, 3);
-          // Ruído branco filtrado
           data[startSample + j] = (Math.random() * 2 - 1) * envelope * 0.35;
         }
       }
@@ -63,16 +61,13 @@ const App: React.FC = () => {
     return buffer;
   };
 
-  // Gera um som de "Mensagem Enviada" (Bloop harmônico ascendente)
   const createSentMessageBuffer = (ctx: AudioContext) => {
     const sampleRate = ctx.sampleRate;
     const duration = 0.18;
     const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
-    
     for (let i = 0; i < sampleRate * duration; i++) {
       const t = i / (sampleRate * duration);
-      // Sweep de frequência: de 800Hz para 1400Hz
       const freq = 800 + 600 * t;
       const envelope = Math.pow(1 - t, 2);
       data[i] = Math.sin(2 * Math.PI * freq * (i / sampleRate)) * envelope * 0.3;
@@ -80,7 +75,6 @@ const App: React.FC = () => {
     return buffer;
   };
 
-  // Validação do formulário
   const isFormValid = 
     userData.name.trim().length > 2 && 
     userData.email.trim().includes('@') && 
@@ -100,7 +94,6 @@ const App: React.FC = () => {
     const preloadAssets = async () => {
       try {
         setLoadingProgress(10);
-        // Preload Imagem (Avatar)
         const img = new Image();
         img.src = EXECUTIVE_AVATAR;
         await new Promise((resolve) => {
@@ -108,22 +101,16 @@ const App: React.FC = () => {
           img.onerror = resolve;
         });
         setLoadingProgress(40);
-
-        // Inicializar Contexto de Áudio
         const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
         const ctx = new AudioContextClass();
         audioCtxRef.current = ctx;
         setLoadingProgress(60);
-
-        // Gerar áudios sintéticos (Instantâneo, sem rede!)
         keyboardBufferRef.current = createKeyboardTypingBuffer(ctx);
         setLoadingProgress(80);
         sentBufferRef.current = createSentMessageBuffer(ctx);
-        
         setLoadingProgress(100);
         setTimeout(() => setIsAssetsReady(true), 500);
       } catch (error) {
-        console.error("Erro na inicialização de assets:", error);
         setIsAssetsReady(true);
         setLoadingProgress(100);
       }
@@ -146,7 +133,6 @@ const App: React.FC = () => {
       email: 'teste@d4kingdom.com',
       phone: '(11) 98888-7777'
     });
-    
     setQuizAnswers([
       { type: 'situation', value: 5 },
       { type: 'problem', value: 4 },
@@ -154,26 +140,46 @@ const App: React.FC = () => {
       { type: 'need', value: 9 },
       { type: 'fit', value: 8 }
     ]);
-
     if (audioCtxRef.current) audioCtxRef.current.resume();
-    
     setHasUnlockedAudio(true);
     setShowDevMenu(false);
     navigate(next);
   };
 
-  const handleStartExperience = () => {
-    if (!isFormValid) return;
+  const handleStartExperience = async () => {
+    if (!isFormValid || isSubmitting) return;
     
-    if (audioCtxRef.current) {
-      audioCtxRef.current.resume().then(() => {
-        setHasUnlockedAudio(true);
-        navigate('1A');
-      });
-    } else {
-      setHasUnlockedAudio(true);
-      navigate('1A');
+    setIsSubmitting(true);
+    console.log("Enviando lead para:", WEBHOOK_URL);
+
+    // Envio dos dados para Automação (Sheets)
+    if (WEBHOOK_URL) {
+      try {
+        // Usamos text/plain para evitar erros de pré-voo (CORS) do Google
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          mode: 'no-cors', 
+          body: JSON.stringify({
+            name: userData.name,
+            email: userData.email,
+            phone: userData.phone,
+            timestamp: new Date().toLocaleString('pt-BR'),
+            source: 'D4 Funnel'
+          })
+        });
+        console.log("Requisição de lead disparada.");
+      } catch (e) {
+        console.error("Erro ao enviar lead:", e);
+      }
     }
+
+    if (audioCtxRef.current) {
+      await audioCtxRef.current.resume();
+    }
+    
+    setHasUnlockedAudio(true);
+    setIsSubmitting(false);
+    navigate('1A');
   };
 
   const formatPhone = (value: string) => {
@@ -228,8 +234,8 @@ const App: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none" />
           <div className="z-10 text-center space-y-6 max-w-sm w-full py-10">
             <div className="relative inline-block mb-2">
-              <div className={`w-20 h-20 bg-blue-600/20 rounded-2xl flex items-center justify-center border border-blue-500/30 ${!isAssetsReady ? 'animate-pulse' : ''}`}>
-                {!isAssetsReady ? <Loader2 size={32} className="text-blue-500 animate-spin" /> : <Cpu size={32} className="text-blue-500" />}
+              <div className={`w-20 h-20 bg-blue-600/20 rounded-2xl flex items-center justify-center border border-blue-500/30 ${(!isAssetsReady || isSubmitting) ? 'animate-pulse' : ''}`}>
+                {(!isAssetsReady || isSubmitting) ? <Loader2 size={32} className="text-blue-500 animate-spin" /> : <Cpu size={32} className="text-blue-500" />}
               </div>
             </div>
             <div className="space-y-2">
@@ -258,15 +264,21 @@ const App: React.FC = () => {
                 ) : (
                   <button 
                     onClick={handleStartExperience} 
-                    disabled={!isFormValid}
+                    disabled={!isFormValid || isSubmitting}
                     className={`group w-full py-4 rounded-xl font-black text-sm transition-all flex items-center justify-center space-x-2 shadow-xl active:scale-95 ${
-                      isFormValid 
+                      (isFormValid && !isSubmitting) 
                         ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/10 animate-pulse-gentle' 
                         : 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-50'
                     }`}
                   >
-                    <span>VER O MECANISMO EM AÇÃO</span>
-                    <Zap size={16} className="fill-current" />
+                    {isSubmitting ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <>
+                        <span>VER O MECANISMO EM AÇÃO</span>
+                        <Zap size={16} className="fill-current" />
+                      </>
+                    )}
                   </button>
                 )}
               </div>

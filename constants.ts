@@ -1,10 +1,9 @@
-
 export const EXECUTIVE_AVATAR = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/d9cf14d6887c1cad630073a55c3aa042c398ca0e/D4%20PHONE.png";
 export const EXPERT_AVATAR = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/25a4ca20f8a07aafbdab8bad0043f426da8be2c9/ENGENHEIRO%20DE%20VENDAS.jpeg"; 
 export const EXPERT_SALES_CHAMPION_PHOTO = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/b041099a9a31c47f100cb2f568266a07da45bfab/CAMPEAO%20DE%20VENDAS.jpeg";
 export const EXPERT_TECHNICAL_PHOTO = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/7176d938a53acf0159d224f920973e5e1fc6c620/TECNICO.png";
 export const EXPERT_TRAINING_PHOTO = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/866ed3a59638ceb158f4cc5a9aff530242add4ef/ChatGPT%20Image%20Jan%2011%2C%202026%2C%2002_13_54%20PM.png";
-export const EXPERT_MISSION_PHOTO = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/aa00812aaa71f673796d9f064437554db7884721/ChatGPT%20Image%20Jan%2011%2C%202026%2C%2004_32_11%20PM.png";
+export const EXPERT_MISSION_PHOTO = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/b4202db17d38e3005f86963fecaf863a31685438/KAYO%20PALESTRANDO.jpeg";
 export const EXPERT_FAMILY_PHOTO = "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800";
 
 export const KEYBOARD_SOUND_URL = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/main/mixkit-keyboard-typing-1386.wav";
