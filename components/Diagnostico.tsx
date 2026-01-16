@@ -22,7 +22,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
     label: 'Analítico',
     recommendation: '',
     scaleStrategy: '',
-    ctaText: 'QUERO ACESSAR O D4 SELLER',
+    ctaText: 'QUERO ACESSAR A SOLUÇÃO',
     icon: null as any 
   });
   const [isAnimating, setIsAnimating] = useState(true);
@@ -57,17 +57,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
     const sC = scoreComercial;
     const sF = scoreFit;
 
-    // Lógica de Qualificação para o CTA Baseada em Faturamento (scoreFit)
-    // sF <= 2: Até R$ 10.000
-    // sF > 2 && sF < 10: R$ 10.001 a R$ 50.000
-    // sF >= 10: Acima de R$ 50.000
-    let dynamicCta = 'QUERO ACESSAR O D4 SELLER E AGENDAR DIAGNÓSTICO 360';
-    
-    if (sF <= 2) {
-      dynamicCta = 'QUERO ACESSAR O D4 SELLER';
-    } else if (sF >= 10) {
-      dynamicCta = 'QUERO CONHECER A RECEITA 360';
-    }
+    let dynamicCta = 'QUERO ACESSAR A SOLUÇÃO';
 
     let lvl = { 
       name: '', 

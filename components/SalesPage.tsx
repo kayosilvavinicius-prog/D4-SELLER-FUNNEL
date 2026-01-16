@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   ChevronDown, 
@@ -89,6 +90,15 @@ const SalesPage: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const scrollToOffers = () => {
+    const element = document.getElementById('offer-147');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      document.getElementById('offers')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const testimonials = [
     {
@@ -190,8 +200,11 @@ const SalesPage: React.FC = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-            <button className="group relative px-8 py-5 bg-[#66FCF1] text-[#0B0C10] font-black text-lg rounded-xl shadow-glow-cyan transition-all flex items-center space-x-3 active:scale-95">
-              <span>GERAR DIAGNÓSTICO COMERCIAL</span>
+            <button 
+              onClick={scrollToOffers}
+              className="group relative px-8 py-5 bg-[#66FCF1] text-[#0B0C10] font-black text-lg rounded-xl shadow-glow-cyan transition-all flex items-center space-x-3 active:scale-95"
+            >
+              <span>QUERO ACESSAR A SOLUÇÃO</span>
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </button>
             <div className="flex items-center space-x-2 text-[#45A29E] text-xs font-bold uppercase tracking-widest">
@@ -449,8 +462,11 @@ const SalesPage: React.FC = () => {
               Nossa engenharia de vendas é altamente adaptável. Se você vende pelo WhatsApp, nós podemos otimizar seu processo transformando atendimentos em lucro previsível através do nosso método validado.
             </p>
             <div className="pt-4">
-              <button className="px-8 py-5 bg-[#66FCF1] text-[#0B0C10] font-black text-sm rounded-2xl shadow-glow-cyan hover:scale-[1.03] transition-all uppercase tracking-[0.2em] active:scale-95 flex items-center justify-center space-x-3 mx-auto">
-                <span>ACESSAR O D4 SELLER + REUNIÃO DE DIAGNÓSTICO</span>
+              <button 
+                onClick={scrollToOffers}
+                className="px-8 py-5 bg-[#66FCF1] text-[#0B0C10] font-black text-sm rounded-2xl shadow-glow-cyan hover:scale-[1.03] transition-all uppercase tracking-[0.2em] active:scale-95 flex items-center justify-center space-x-3 mx-auto"
+              >
+                <span>QUERO ACESSAR A SOLUÇÃO</span>
                 <ArrowRight size={18} />
               </button>
             </div>
@@ -459,7 +475,7 @@ const SalesPage: React.FC = () => {
       </section>
 
       {/* 6. OFERTAS IRRESISTÍVEIS */}
-      <section className="py-24 px-6 bg-[#050505] relative overflow-hidden border-y border-white/5">
+      <section id="offers" className="py-24 px-6 bg-[#050505] relative overflow-hidden border-y border-white/5">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20 space-y-4">
             <div className="inline-flex items-center space-x-2 text-[#66FCF1] font-black uppercase text-[10px] tracking-[0.4em] bg-[#66FCF1]/10 px-4 py-2 rounded-full mb-4">
@@ -528,7 +544,7 @@ const SalesPage: React.FC = () => {
             </div>
 
             {/* PLANO 2: D4 SELLER + DIAGNÓSTICO (ESTRELA) */}
-            <div className="group relative bg-[#0B0C10] p-10 rounded-[3rem] border-2 border-[#66FCF1] shadow-glow-cyan transition-all duration-500 flex flex-col justify-between overflow-hidden">
+            <div id="offer-147" className="group relative bg-[#0B0C10] p-10 rounded-[3rem] border-2 border-[#66FCF1] shadow-glow-cyan transition-all duration-500 flex flex-col justify-between overflow-hidden">
               <div className="absolute top-0 right-0 bg-[#66FCF1] text-[#0B0C10] px-8 py-3 font-black text-[11px] uppercase tracking-widest rounded-bl-[2rem] shadow-lg z-10">
                 MELHOR CUSTO BENEFÍCIO
               </div>
@@ -827,8 +843,11 @@ const SalesPage: React.FC = () => {
       {/* MOBILE STICKY CTA */}
       <div className={`fixed bottom-0 left-0 right-0 p-4 bg-[#0B0C10]/90 backdrop-blur-xl border-t border-white/10 z-[100] transition-all duration-500 transform ${scrolled ? 'translate-y-0' : 'translate-y-full'}`}>
         <div className="max-w-xl mx-auto flex items-center justify-between gap-4">
-          <button className="flex-1 py-4 bg-[#66FCF1] text-[#0B0C10] font-black text-xs uppercase tracking-tighter rounded-xl shadow-glow-cyan active:scale-95 transition-all">
-            RESERVAR DIAGNÓSTICO COMERCIAL
+          <button 
+            onClick={scrollToOffers}
+            className="flex-1 py-4 bg-[#66FCF1] text-[#0B0C10] font-black text-xs uppercase tracking-tighter rounded-xl shadow-glow-cyan active:scale-95 transition-all"
+          >
+            QUERO ACESSAR A SOLUÇÃO
           </button>
         </div>
       </div>

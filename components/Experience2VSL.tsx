@@ -75,7 +75,6 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
   };
 
   const handleFinalStep = () => {
-    // Fixed: Explicitly cast Object.values to the correct type to avoid 'unknown' errors
     const finalAnswers = (Object.values(answers) as { type: string, score: number }[]).map(a => ({ type: a.type, value: a.score }));
     const missing = VSL_STEPS.filter(s => !answers[s.id]).map(s => ({ type: s.type, value: 0 }));
     onComplete([...finalAnswers, ...missing]);
@@ -205,7 +204,7 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
                     onClick={handleFinalStep}
                     className="w-full bg-[#0A66C2] text-white py-5 rounded-2xl font-black text-sm uppercase tracking-tighter shadow-xl hover:bg-[#004182] transition-all active:scale-95 flex items-center justify-center space-x-2"
                   >
-                    <span>👉 Gerar meu Diagnóstico Comercial</span>
+                    <span>QUERO ACESSAR A SOLUÇÃO</span>
                   </button>
                 </div>
               </div>
