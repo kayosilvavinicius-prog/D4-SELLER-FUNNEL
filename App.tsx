@@ -4,12 +4,12 @@ import Experience1A from './components/Experience1A';
 import Experience1B from './components/Experience1B';
 import Experience1C from './components/Experience1C';
 import Experience2VSL from './components/Experience2VSL';
-import Quiz from './components/Quiz'; // Importação do Quiz remodelado
+import Quiz from './components/Quiz'; 
 import Diagnostico from './components/Diagnostico';
 import SalesPage from './components/SalesPage';
 import Menu from './components/Menu';
 import { Experience } from './types';
-import { Zap, Cpu, Loader2, User, Mail, Phone, Settings, X, ChevronRight, Bug } from 'lucide-react';
+import { Zap, Cpu, Loader2, User, Mail, Phone, Settings, X, ChevronRight } from 'lucide-react';
 import { EXECUTIVE_AVATAR } from './constants';
 
 const VSL_VIDEO_URL = "https://res.cloudinary.com/dafhibb8s/video/upload/WhatsApp_Video_2026-01-11_at_03.41.56_e51evy.mp4";
@@ -21,7 +21,6 @@ const App: React.FC = () => {
   const [currentExp, setCurrentExp] = useState<AppExperience>('MENU');
   const [isFading, setIsFading] = useState(false);
   const [hasUnlockedAudio, setHasUnlockedAudio] = useState(false);
-  const [showDevMenu, setShowDevMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
@@ -34,7 +33,6 @@ const App: React.FC = () => {
   });
 
   const [quizAnswers, setQuizAnswers] = useState<{ type: string, value: number }[]>([]);
-  const [isAssetsReady, setIsAssetsReady] = useState(false);
   const [callOutcome, setCallOutcome] = useState<'completed' | 'refused' | 'skipped'>('completed');
   
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -108,20 +106,6 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen bg-transparent transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
-      <button onClick={() => setShowDevMenu(true)} className="fixed bottom-6 right-6 z-[9999] w-14 h-14 bg-[#66FCF1]/10 backdrop-blur-md rounded-full flex items-center justify-center text-[#66FCF1] border border-[#66FCF1]/20 shadow-glow-cyan"><Bug size={24} /></button>
-
-      {showDevMenu && (
-        <div className="fixed inset-0 z-[10000] bg-black/95 flex items-center justify-center p-6 backdrop-blur-sm">
-          <div className="bg-[#1F2833] w-full max-w-sm rounded-[3rem] p-8 border border-[#66FCF1]/20 space-y-4 shadow-2xl">
-            <h3 className="text-[#66FCF1] font-black uppercase text-xs tracking-widest text-center italic">Dev Control Panel</h3>
-            {['MENU', 'QUIZ', '1A', '2-VSL', 'DIAGNOSTICO', 'SALES'].map(target => (
-              <button key={target} onClick={() => { setUserData({name:'Teste', email:'t@t.com', phone:'11999'}); navigateWithTrack(target as AppExperience); setShowDevMenu(false); }} className="w-full p-4 bg-white/5 text-white rounded-xl text-xs font-bold hover:bg-[#66FCF1] hover:text-[#0B0C10] transition-all uppercase">{target}</button>
-            ))}
-            <button onClick={() => setShowDevMenu(false)} className="w-full p-2 text-white/40 text-[10px] uppercase">Fechar</button>
-          </div>
-        </div>
-      )}
-
       {!hasUnlockedAudio && currentExp === 'MENU' ? (
         <div className="min-h-screen bg-[#0B0C10] flex flex-col items-center justify-center p-6 text-white font-sans overflow-hidden">
           <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px]"></div>
