@@ -15,11 +15,20 @@ import {
   Repeat, 
   Send, 
   MessageCircle,
-  PlayCircle
+  PlayCircle,
+  X
 } from 'lucide-react';
 
 interface Experience2VSLProps {
   onComplete: (answers: { type: string, value: number }[]) => void;
+}
+
+interface Comment {
+  author: string;
+  role: string;
+  text: string;
+  avatar: string;
+  time: string;
 }
 
 const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
@@ -30,6 +39,28 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
   const [isFinishing, setIsFinishing] = useState(false);
   const [videoDuration, setVideoDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+
+  // LinkedIn Interactions State
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(127);
+  const [showCommentInput, setShowCommentInput] = useState(false);
+  const [newCommentText, setNewCommentText] = useState('');
+  const [comments, setComments] = useState<Comment[]>([
+    {
+      author: "João M.",
+      role: "Diretor Comercial na TechFlow",
+      text: "Isso é o futuro das vendas! Impressionante como o framework SPIN está embutido na lógica do bot.",
+      avatar: "https://i.pravatar.cc/150?u=2", // u=2 is male in pravatar usually, but flipping as requested
+      time: "45 min"
+    },
+    {
+      author: "Aline S.",
+      role: "CEO @ GlowUp Digital",
+      text: "Usei o D4 Seller no meu lançamento e o resultado foi absurdo! O follow-up ativo deles não deixa ninguém esfriar.",
+      avatar: "https://i.pravatar.cc/150?u=1", // u=1 is female in pravatar usually
+      time: "12 min"
+    }
+  ]);
 
   const VIDEO_SRC = "https://res.cloudinary.com/dafhibb8s/video/upload/WhatsApp_Video_2026-01-11_at_03.41.56_e51evy.mp4";
 
@@ -80,6 +111,25 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
     onComplete([...finalAnswers, ...missing]);
   };
 
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+  };
+
+  const handlePostComment = () => {
+    if (!newCommentText.trim()) return;
+    const comment: Comment = {
+      author: "Você",
+      role: "Especialista em Vendas",
+      text: newCommentText,
+      avatar: "https://i.pravatar.cc/150?u=you",
+      time: "Agora"
+    };
+    setComments([comment, ...comments]);
+    setNewCommentText('');
+    setShowCommentInput(false);
+  };
+
   const activeQuestion = VSL_STEPS.find(q => q.id === currentQuestionId);
   const progressPercentage = videoDuration ? (currentTime / videoDuration) * 100 : 0;
 
@@ -119,10 +169,10 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
               </div>
               <div>
                 <div className="flex items-center space-x-1">
-                  <h3 className="text-sm font-bold hover:text-[#0A66C2] hover:underline cursor-pointer">D4 Kingdom</h3>
+                  <h3 className="text-sm font-bold hover:text-[#0A66C2] hover:underline cursor-pointer text-left">D4 Kingdom</h3>
                   <span className="text-xs text-[#666] font-normal">• 2º</span>
                 </div>
-                <p className="text-xs text-[#666] leading-tight">Empreendendo o futuro das vendas digitais</p>
+                <p className="text-xs text-[#666] leading-tight text-left">Empreendendo o futuro das vendas digitais</p>
                 <div className="flex items-center space-x-1 text-[#666] mt-0.5">
                   <span className="text-xs">1 h</span>
                   <span className="text-[8px]">•</span>
@@ -134,7 +184,7 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
           </div>
 
           {/* Post Text */}
-          <div className="px-4 pb-3 space-y-1">
+          <div className="px-4 pb-3 space-y-1 text-left">
             <p className="text-sm leading-relaxed">
               Você já imaginou um vendedor digital que conduz decisões — não respostas automáticas?
             </p>
@@ -169,7 +219,7 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
                         <div className="h-full bg-[#0A66C2] transition-all" style={{ width: `${(currentQuestionId / VSL_STEPS.length) * 100}%` }}></div>
                       </div>
                     </div>
-                    <h2 className="text-base sm:text-lg font-bold leading-tight text-[#1e1e1e]">
+                    <h2 className="text-base sm:text-lg font-bold leading-tight text-[#1e1e1e] text-left">
                       {activeQuestion.question}
                     </h2>
                     <div className="grid grid-cols-1 gap-2">
@@ -227,70 +277,88 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
                     <div className="bg-[#0A66C2] rounded-full p-0.5 border border-white text-[8px] text-white"><ThumbsUp size={8} fill="currentColor" /></div>
                     <div className="bg-[#df704d] rounded-full p-0.5 border border-white text-[8px] text-white"><MessageCircle size={8} fill="currentColor" /></div>
                   </div>
-                  <span className="text-[11px] text-[#666]">D4 Kingdom e outras 127 pessoas</span>
+                  <span className="text-[11px] text-[#666]">D4 Kingdom e outras {likeCount} pessoas</span>
                 </div>
                 <div className="text-[11px] text-[#666]">
-                  <span>42 comentários</span>
+                  <span>{comments.length + 42} comentários</span>
                   <span className="mx-1">•</span>
                   <span>15 compartilhamentos</span>
                 </div>
              </div>
              
              <div className="flex items-center justify-between text-[#666] font-semibold py-1">
-                <button className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-md hover:bg-black/5 transition-colors"><ThumbsUp size={20} /> <span className="text-xs">Gostei</span></button>
-                <button className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-md hover:bg-black/5 transition-colors"><MessageCircle size={20} /> <span className="text-xs">Comentar</span></button>
-                <button className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-md hover:bg-black/5 transition-colors"><Repeat size={20} /> <span className="text-xs">Compartilhar</span></button>
-                <button className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-md hover:bg-black/5 transition-colors"><Send size={20} /> <span className="text-xs">Enviar</span></button>
+                <button 
+                  onClick={handleLike}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 rounded-md hover:bg-black/5 transition-colors ${isLiked ? 'text-[#0A66C2]' : ''}`}
+                >
+                  <ThumbsUp size={20} fill={isLiked ? "currentColor" : "none"} /> 
+                  <span className="text-xs">Gostei</span>
+                </button>
+                <button 
+                  onClick={() => setShowCommentInput(!showCommentInput)}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 rounded-md hover:bg-black/5 transition-colors ${showCommentInput ? 'text-[#0A66C2]' : ''}`}
+                >
+                  <MessageCircle size={20} /> 
+                  <span className="text-xs">Comentar</span>
+                </button>
+                <button className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-md hover:bg-black/5 transition-colors cursor-not-allowed opacity-50"><Repeat size={20} /> <span className="text-xs">Compartilhar</span></button>
+                <button className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-md hover:bg-black/5 transition-colors cursor-not-allowed opacity-50"><Send size={20} /> <span className="text-xs">Enviar</span></button>
              </div>
           </div>
 
+          {/* New Comment Input */}
+          {showCommentInput && (
+            <div className="p-4 border-t border-[#f0f0f0] bg-[#f9fafb] animate-in slide-in-from-top-2 duration-300">
+              <div className="flex space-x-3">
+                <div className="w-10 h-10 rounded-full bg-neutral-200 shrink-0 flex items-center justify-center overflow-hidden">
+                  <UserCircle size={40} className="text-[#666]" />
+                </div>
+                <div className="flex-1 relative">
+                  <textarea 
+                    value={newCommentText}
+                    onChange={(e) => setNewCommentText(e.target.value)}
+                    placeholder="Adicionar um comentário..."
+                    className="w-full bg-white border border-[#ccc] rounded-3xl py-2.5 px-4 text-sm outline-none focus:ring-1 focus:ring-[#0A66C2] focus:border-[#0A66C2] resize-none min-h-[44px]"
+                  />
+                  {newCommentText.trim() && (
+                    <button 
+                      onClick={handlePostComment}
+                      className="absolute right-2 bottom-2 p-1.5 bg-[#0A66C2] text-white rounded-full shadow-lg"
+                    >
+                      <Send size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 6️⃣ SIMULATED COMMENTS */}
           <div className="bg-[#f9fafb] p-4 space-y-4">
-            <div className="flex space-x-3">
-              <div className="w-8 h-8 rounded-full bg-neutral-300 shrink-0 overflow-hidden">
-                <img src="https://i.pravatar.cc/150?u=1" alt="User 1" />
-              </div>
-              <div className="flex-1">
-                <div className="bg-white p-3 rounded-lg border border-[#e8e8e8] shadow-sm">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="text-xs font-bold">João M.</h4>
-                      <p className="text-[10px] text-[#666]">Diretor Comercial na TechFlow</p>
+            {comments.map((cmt, idx) => (
+              <div key={idx} className="flex space-x-3 animate-in slide-in-from-top-4 duration-500">
+                <div className="w-8 h-8 rounded-full bg-neutral-300 shrink-0 overflow-hidden">
+                  <img src={cmt.avatar} alt={cmt.author} />
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="bg-white p-3 rounded-lg border border-[#e8e8e8] shadow-sm">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="text-xs font-bold">{cmt.author}</h4>
+                        <p className="text-[10px] text-[#666]">{cmt.role}</p>
+                      </div>
+                      <span className="text-[10px] text-[#666]">{cmt.time}</span>
                     </div>
-                    <span className="text-[10px] text-[#666]">45 min</span>
+                    <p className="text-xs mt-2 text-[#1e1e1e]">{cmt.text}</p>
                   </div>
-                  <p className="text-xs mt-2 text-[#1e1e1e]">Isso é o futuro das vendas! Impressionante como o framework SPIN está embutido na lógica do bot.</p>
-                </div>
-                <div className="flex items-center space-x-3 mt-1 ml-1">
-                   <button className="text-[10px] font-bold text-[#666] hover:text-[#0A66C2]">Gostei</button>
-                   <span className="text-[#ccc] text-[10px]">|</span>
-                   <button className="text-[10px] font-bold text-[#666] hover:text-[#0A66C2]">Responder</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex space-x-3">
-              <div className="w-8 h-8 rounded-full bg-neutral-300 shrink-0 overflow-hidden">
-                <img src="https://i.pravatar.cc/150?u=2" alt="User 2" />
-              </div>
-              <div className="flex-1">
-                <div className="bg-white p-3 rounded-lg border border-[#e8e8e8] shadow-sm">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="text-xs font-bold">Aline S.</h4>
-                      <p className="text-[10px] text-[#666]">CEO @ GlowUp Digital</p>
-                    </div>
-                    <span className="text-[10px] text-[#666]">12 min</span>
+                  <div className="flex items-center space-x-3 mt-1 ml-1">
+                     <button className="text-[10px] font-bold text-[#666] hover:text-[#0A66C2]">Gostei</button>
+                     <span className="text-[#ccc] text-[10px]">|</span>
+                     <button className="text-[10px] font-bold text-[#666] hover:text-[#0A66C2]">Responder</button>
                   </div>
-                  <p className="text-xs mt-2 text-[#1e1e1e]">Usei o D4 Seller no meu lançamento e o resultado foi absurdo! O follow-up ativo deles não deixa ninguém esfriar.</p>
-                </div>
-                <div className="flex items-center space-x-3 mt-1 ml-1">
-                   <button className="text-[10px] font-bold text-[#666] hover:text-[#0A66C2]">Gostei</button>
-                   <span className="text-[#ccc] text-[10px]">|</span>
-                   <button className="text-[10px] font-bold text-[#666] hover:text-[#0A66C2]">Responder</button>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
 

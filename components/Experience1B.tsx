@@ -140,7 +140,7 @@ const Experience1B: React.FC<{ audioCtx: AudioContext | null, onComplete: (refus
               ))}
             </div>
             <div className="flex justify-center">
-              <button onClick={() => onComplete(true)} className="w-18 h-18 bg-red-600 rounded-full flex items-center justify-center shadow-xl active:scale-95"><Phone size={32} className="rotate-[135deg]" /></button>
+              <button onClick={() => onComplete(true)} className="w-18 h-18 bg-red-600 rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all"><Phone size={32} className="rotate-[135deg]" /></button>
             </div>
           </div>
         )}

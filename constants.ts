@@ -1,3 +1,4 @@
+
 export const EXECUTIVE_AVATAR = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/d9cf14d6887c1cad630073a55c3aa042c398ca0e/D4%20PHONE.png";
 export const EXPERT_AVATAR = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/25a4ca20f8a07aafbdab8bad0043f426da8be2c9/ENGENHEIRO%20DE%20VENDAS.jpeg"; 
 export const EXPERT_SALES_CHAMPION_PHOTO = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/b041099a9a31c47f100cb2f568266a07da45bfab/CAMPEAO%20DE%20VENDAS.jpeg";
@@ -67,12 +68,12 @@ export const VSL_STEPS = [
     id: 4,
     type: "need",
     timestamp: 159,
-    question: "Quanto valeria para você ter um processo que converte 30-50% mais leads em vendas, sem aumentar custo de time ou marketing?",
+    question: "A maioria dos empresários foca em atrair mais gente interessada. Mas e se você pudesse converter 30-50% mais das pessoas que já chegam até você, sem custo adicional de equipe ou marketing — o que isso mudaria no seu negócio?",
     options: [
-      { text: "Isso pagaria sozinho em menos de 1 mês", score: 10 },
-      { text: "Seria o investimento mais rentável que eu faria este ano", score: 9 },
-      { text: "Mudaria completamente minha capacidade de crescer", score: 10 },
-      { text: "Preciso entender melhor como funciona, mas parece exatamente o que falta", score: 6 }
+      { text: "Aumentaria meu lucro sem aumentar minha estrutura", score: 10 },
+      { text: "Me daria mais estabilidade para tomar decisões maiores", score: 9 },
+      { text: "É onde está meu maior gargalo agora", score: 10 },
+      { text: "Quero entender melhor como aplicar isso no meu negócio", score: 6 }
     ]
   },
   {

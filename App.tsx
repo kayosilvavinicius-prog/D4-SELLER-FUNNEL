@@ -121,7 +121,11 @@ const App: React.FC = () => {
         <div className="min-h-[100dvh] flex flex-col items-center justify-center p-6 text-white overflow-hidden relative">
           <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#66FCF1]/5 rounded-full blur-[120px]"></div>
           <div className="z-10 text-center space-y-8 max-w-sm w-full">
-            <h1 className="text-5xl font-black uppercase italic tracking-tighter">D4 <span className="text-[#66FCF1]">Kingdom</span></h1>
+            <div className="space-y-0 flex flex-col items-center">
+              <h1 className="text-5xl font-black uppercase italic tracking-tighter">D4 <span className="text-[#66FCF1]">Kingdom</span></h1>
+              <p className="text-[10px] font-bold text-[#66FCF1] uppercase tracking-[0.4em] opacity-80 mt-1">Soluções Inteligentes em Vendas</p>
+            </div>
+            
             <div className="space-y-4 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-md shadow-2xl">
               <input type="text" placeholder="Nome Completo" value={userData.name} onChange={e => setUserData({...userData, name: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
               <input type="email" placeholder="E-mail" value={userData.email} onChange={e => setUserData({...userData, email: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
@@ -133,7 +137,7 @@ const App: React.FC = () => {
                 className={`w-full py-5 rounded-xl font-black text-sm transition-all duration-500 flex items-center justify-center ${
                   isFormValid && !isSubmitting
                     ? 'bg-[#66FCF1] text-[#0B0C10] shadow-glow-cyan active:scale-95' 
-                    : 'bg-[#66FCF1]/10 text-white/20 cursor-not-allowed border border-white/5'
+                    : 'bg-white/5 text-white/10 cursor-not-allowed border border-white/5'
                 }`}
               >
                 {isSubmitting ? <Loader2 className="animate-spin" /> : "INICIAR EXPERIÊNCIA"}

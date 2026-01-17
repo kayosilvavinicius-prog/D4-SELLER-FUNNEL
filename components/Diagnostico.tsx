@@ -78,7 +78,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
             - Nível de Risco: ${level.label}
             - Perfil: ${level.name}
             
-            Como um Especialista em Engenharia de Vendas da D4 Kingdom, gere um Veredito Curto (máx 280 caracteres).
+            Como um Especialista em Engenharia de Vendas da D4 Kingdom, gere um Diagnóstico 360 Curto (máx 280 caracteres).
             FOCO: Perda de lucro por atendimento passivo e a solução através do D4 Seller.
             TOM: Profissional, autoritário, focado em ROI. Use "Você" e "Sua Operação".`,
             config: {
@@ -137,7 +137,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
              <div className="absolute -inset-4 border border-[#66FCF1]/20 rounded-full animate-ping"></div>
           </div>
           <div className="space-y-4">
-            <h2 className="text-2xl font-black italic uppercase tracking-tighter">Processando Auditoria</h2>
+            <h2 className="text-2xl font-black italic uppercase tracking-tighter text-center">Processando Auditoria</h2>
             <div className="flex flex-col space-y-4">
                <div className={`flex items-center space-x-4 transition-all duration-700 ${scanStep >= 1 ? 'opacity-100 translate-x-0' : 'opacity-20 -translate-x-4'}`}>
                   <div className="w-2 h-2 bg-[#66FCF1] rounded-full shadow-glow-cyan"></div>
@@ -165,7 +165,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
           <div className="w-10 h-10 bg-[#66FCF1]/10 rounded-xl flex items-center justify-center border border-[#66FCF1]/20 shadow-glow-cyan shrink-0">
             <BarChart3 size={20} className="text-[#66FCF1]" />
           </div>
-          <div className="leading-none">
+          <div className="leading-none text-left">
             <h1 className="text-lg font-black italic tracking-tighter uppercase leading-none">D4 <span className="text-[#66FCF1]">Kingdom</span></h1>
             <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em]">Auditoria de Condução 360</span>
           </div>
