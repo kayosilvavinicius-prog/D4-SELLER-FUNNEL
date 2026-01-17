@@ -12,10 +12,10 @@ import { Zap, Cpu, Loader2, User, Mail, Phone, Settings, X, ChevronRight } from 
 
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyyIrs2tO1SenLzEms_XdY9Ve2sPLfwbeDhcZ-2m7EL3lMa_uAHykKy3MQNs8mmUX-4Zw/exec"; 
 
-type AppExperience = Experience | 'QUIZ';
+// Removemos 'MENU' do tipo de experiência para garantir um fluxo linear de produção
+type AppExperience = '1A' | '1B' | '1C' | '2-VSL' | 'DIAGNOSTICO' | 'SALES' | 'QUIZ';
 
 const App: React.FC = () => {
-  // Alterado para iniciar em 1A (WhatsApp), mas bloqueado pela tela de cadastro (hasUnlockedAudio)
   const [currentExp, setCurrentExp] = useState<AppExperience>('1A');
   const [isFading, setIsFading] = useState(false);
   const [hasUnlockedAudio, setHasUnlockedAudio] = useState(false);
@@ -80,7 +80,7 @@ const App: React.FC = () => {
 
   const handleStartExperience = async () => {
     if (!userData.name || !userData.email || !userData.phone) {
-      alert("Por favor, preencha todos os campos para continuar.");
+      alert("Por favor, preencha todos os campos corretamente.");
       return;
     }
     if (isSubmitting) return;
@@ -113,7 +113,7 @@ const App: React.FC = () => {
     <div className={`min-h-screen bg-transparent transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
       {!hasUnlockedAudio ? (
         <div className="min-h-screen bg-[#0B0C10] flex flex-col items-center justify-center p-6 text-white font-sans overflow-hidden">
-          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px]"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#66FCF1]/5 rounded-full blur-[120px]"></div>
           <div className="z-10 text-center space-y-8 max-w-sm w-full">
             <div className="space-y-2">
               <h1 className="text-5xl font-black uppercase italic tracking-tighter">D4 <span className="text-[#66FCF1]">Kingdom</span></h1>
@@ -152,7 +152,7 @@ const App: React.FC = () => {
                 {isSubmitting ? <Loader2 className="animate-spin" /> : <span>INICIAR EXPERIÊNCIA</span>}
               </button>
             </div>
-            <p className="text-[10px] text-white/10 uppercase tracking-widest">Protocolo de Segurança Ativo</p>
+            <p className="text-[10px] text-white/10 uppercase tracking-widest">Acesso Restrito • Protocolo de Auditoria</p>
           </div>
         </div>
       ) : (

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
@@ -30,7 +31,7 @@
         font-family: 'Poppins', sans-serif;
       }
 
-      /* WhatsApp Doodle Pattern - Visível apenas em elementos com wa-doodle-bg */
+      /* WhatsApp Doodle Pattern */
       .wa-doodle-bg {
         background-color: var(--wa-bg) !important;
         position: relative;
@@ -72,35 +73,37 @@
       }
 
       @keyframes pulse-gentle {
-        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
-        70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
-        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(102, 252, 241, 0.4); }
+        70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(102, 252, 241, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(102, 252, 241, 0); }
       }
       .animate-pulse-gentle {
         animation: pulse-gentle 2s infinite ease-in-out;
       }
 
-      /* Bolhas de chat realistas */
       .user-bubble { border-radius: 12px 0 12px 12px; color: #111b21 !important; }
       .system-bubble { border-radius: 0 12px 12px 12px; color: #111b21 !important; }
       .clip-tail-right { clip-path: polygon(0 0, 0 100%, 100% 0); }
       .clip-tail-left { clip-path: polygon(100% 0, 100% 100%, 0 0); }
     </style>
-  <script type="importmap">
+    <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.35.0",
+    "react": "https://esm.sh/react@^19.0.0",
+    "react-dom": "https://esm.sh/react-dom@^19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@^19.0.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@^0.468.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.3.0",
     "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
-</head>
+  </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
