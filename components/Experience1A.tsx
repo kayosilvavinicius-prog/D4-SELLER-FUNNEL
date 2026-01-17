@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, Phone, Video, MoreVertical, CheckCheck, Send, Paperclip, Smile } from 'lucide-react';
 import { WhatsAppMessage } from '../types';
-import { GoogleGenAI } from "@google/genai";
 import { EXECUTIVE_AVATAR } from '../constants';
 
 interface Experience1AProps {
@@ -23,21 +22,21 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
+  // Heurística local de gênero (Economiza 100% de tokens no início do funil)
   useEffect(() => {
-    const detectGender = async () => {
-      const firstName = userData.name.split(' ')[0];
-      try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const response = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: `Determine o gênero de "${firstName}". Responda apenas "M" ou "F".`,
-          config: { temperature: 0.1, maxOutputTokens: 2 }
-        });
-        const result = response.text?.trim()?.toUpperCase();
-        setGenderPrefix(result === 'M' ? 'Prezado' : result === 'F' ? 'Prezada' : '');
-      } catch { setGenderPrefix(''); }
-    };
-    detectGender();
+    const firstName = userData.name.trim().split(' ')[0].toLowerCase();
+    const lastChar = firstName.charAt(firstName.length - 1);
+    const commonFemaleEndings = ['a', 'e', 'y', 'i']; // Heurística simples para PT-BR
+    
+    // Lista de exceções comuns ou nomes que terminam em 'a' mas são masculinos
+    const maleExceptions = ['luca', 'bortola', 'garcia', 'paiva', 'sena'];
+    
+    let detected = 'Prezado';
+    if (commonFemaleEndings.includes(lastChar) && !maleExceptions.includes(firstName)) {
+      detected = 'Prezada';
+    }
+    
+    setGenderPrefix(detected);
   }, [userData.name]);
 
   const playTypingSound = () => {
@@ -124,7 +123,7 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
     const firstName = userData.name.split(' ')[0];
     if (sequenceIndex === 0) {
       setTimeout(() => {
-        const greeting = genderPrefix ? `${genderPrefix} ${firstName}.` : `Olá, ${firstName}.`;
+        const greeting = `${genderPrefix} ${firstName}.`;
         addSystemMessage(`${greeting} Recebi suas credenciais.`);
         setSequenceIndex(1);
       }, 1500);

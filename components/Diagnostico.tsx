@@ -149,7 +149,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
                </div>
                <div className={`flex items-center space-x-4 transition-all duration-700 ${scanStep >= 3 ? 'opacity-100 translate-x-0' : 'opacity-20 -translate-x-4'}`}>
                   <div className="w-2 h-2 bg-[#66FCF1] rounded-full shadow-glow-cyan"></div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">Gerando Veredito de IA</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">Gerando Diagnóstico 360</span>
                </div>
             </div>
           </div>
@@ -202,7 +202,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
                 <Brain size={20} />
               </div>
               <div className="text-left">
-                <h3 className="text-sm font-black italic uppercase tracking-widest text-[#66FCF1]">Veredito da IA</h3>
+                <h3 className="text-sm font-black italic uppercase tracking-widest text-[#66FCF1]">Diagnóstico 360</h3>
                 <p className="text-[9px] text-white/30 uppercase tracking-[0.2em]">Engenharia de Vendas Ativa</p>
               </div>
             </div>
@@ -254,7 +254,7 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({ answers, onComplete }) => {
              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-1000 pointer-events-none"><TrendingUp size={120} /></div>
              <div className="relative z-10 space-y-6 text-center">
                 <div className="inline-flex items-center space-x-2 bg-[#0B0C10]/10 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-2">
-                  <Sparkles size={14} />
+                  <span className="animate-pulse">✨</span>
                   <span>Caminho para o Lucro</span>
                 </div>
                 <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-tight">Implementar <br/>Mecanismo D4</h3>

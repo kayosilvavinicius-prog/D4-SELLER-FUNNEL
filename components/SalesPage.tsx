@@ -87,6 +87,8 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
   const [showMecanismoVideo, setShowMecanismoVideo] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
+  const DEMO_VIDEO_URL = "https://res.cloudinary.com/dafhibb8s/video/upload/D4_SELLER_NA_PRATICA_m4solp.mp4";
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 400);
@@ -96,9 +98,7 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
   }, []);
 
   const scrollToOffers = () => {
-    // Tracking do clique no CTA
     if (onTrack) onTrack('CLIQUE_CTA_PAGINA_VENDAS');
-    
     const element = document.getElementById('offer-147');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -109,7 +109,6 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
 
   const handleExternalOfferClick = (plano: string) => {
     if (onTrack) onTrack('CLIQUE_BOTAO_COMPRA', { plano });
-    // Aqui viria o link do checkout (Hotmart, Kiwify, etc)
     console.log(`Redirecionando para checkout: ${plano}`);
   };
 
@@ -191,6 +190,11 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
   return (
     <div className="min-h-screen bg-[#0B0C10] text-white selection:bg-[#66FCF1]/30">
       
+      {/* 🚀 PRELOADER DE VÍDEO OCULTO */}
+      <video className="hidden" preload="auto">
+        <source src={DEMO_VIDEO_URL} type="video/mp4" />
+      </video>
+
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center pt-24 pb-16 px-6 overflow-hidden">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -209,7 +213,7 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
           </h1>
 
           <p className="text-xl text-[#C5C6C7] max-w-2xl mx-auto leading-relaxed font-light">
-            Durma tranquilo sabendo que cada conversa, ligação e decisão do seu negócio está sob controle. Nosso sistema cuida do fluxo — para que você cuide do que realmente importa.
+            Fique tranquilo sabendo que cada conversa, ligação e decisão do seu negócio está sob controle. Nosso sistema cuida do fluxo — para que você cuide do que realmente importa.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
@@ -496,7 +500,7 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
               <span>OFERTA DE LANÇAMENTO</span>
             </div>
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase leading-none">
-              Durma tranquilo com suas <span className="text-[#66FCF1]">vendas sob controle</span>
+              Fique tranquilo com suas <span className="text-[#66FCF1]">vendas sob controle</span>
             </h2>
             <p className="text-[#C5C6C7] text-lg max-w-2xl mx-auto font-light leading-relaxed">
               Selecione o plano D4 Seller adequado a seu momento atual e sinta a tranquilidade de ter cada etapa das suas vendas conduzida com método e precisão 24 horas por dia.

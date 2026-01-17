@@ -6,19 +6,23 @@ import Experience1C from './components/Experience1C';
 import Experience2VSL from './components/Experience2VSL';
 import Diagnostico from './components/Diagnostico';
 import SalesPage from './components/SalesPage';
+import Menu from './components/Menu';
 import { KEYBOARD_SOUND_URL, SENT_SOUND_URL } from './constants';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Settings } from 'lucide-react';
+import { Experience as ExperienceType } from './types';
 
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyyIrs2tO1SenLzEms_XdY9Ve2sPLfwbeDhcZ-2m7EL3lMa_uAHykKy3MQNs8mmUX-4Zw/exec"; 
 
-type AppExperience = '1A' | '1B' | '1C' | '2-VSL' | 'DIAGNOSTICO' | 'SALES';
+type AppExperience = ExperienceType;
 
 const App: React.FC = () => {
   const [currentExp, setCurrentExp] = useState<AppExperience>('1A');
   const [isFading, setIsFading] = useState(false);
   const [hasUnlockedAudio, setHasUnlockedAudio] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMenuDirectly, setShowMenuDirectly] = useState(false);
   
+  // Iniciamos com campos vazios para forçar o usuário a preencher e testar o botão "acendendo"
   const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
   const [utms, setUtms] = useState({
     utm_source: '', utm_medium: '', utm_campaign: '', utm_content: '', utm_term: ''
@@ -63,24 +67,25 @@ const App: React.FC = () => {
     if ((window as any).fbq) (window as any).fbq('trackCustom', eventName, payload);
   };
 
-  const handleStartExperience = async () => {
-    if (!userData.name || !userData.email || !userData.phone) {
-      alert("Preencha todos os campos.");
-      return;
-    }
-    setIsSubmitting(true);
-    
-    // Desbloqueio crucial para iOS
+  const unlockAudioAndStart = async (target: AppExperience = '1A') => {
     const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
     const ctx = new AudioContextClass();
     await ctx.resume();
     audioCtxRef.current = ctx;
     await preloadAudios(ctx);
-    
-    await trackMilestone('CADASTRO_INICIAL');
     setHasUnlockedAudio(true);
+    setShowMenuDirectly(false);
+    navigateTo(target);
+  };
+
+  const handleStartExperience = async () => {
+    if (!userData.name || !userData.email || !userData.phone) {
+      return;
+    }
+    setIsSubmitting(true);
+    await trackMilestone('CADASTRO_INICIAL');
+    await unlockAudioAndStart('1A');
     setIsSubmitting(false);
-    setCurrentExp('1A');
   };
 
   const navigateTo = (next: AppExperience, trackName?: string) => {
@@ -93,9 +98,26 @@ const App: React.FC = () => {
     }, 400);
   };
 
+  const isFormValid = userData.name.trim().length > 0 && 
+                      userData.email.trim().length > 0 && 
+                      userData.phone.trim().length >= 8;
+
   return (
     <div className={`min-h-[100dvh] bg-[#0B0C10] transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
-      {!hasUnlockedAudio ? (
+      
+      {/* Botão de Menu Dev visível em qualquer tela */}
+      {(currentExp !== 'MENU' && !showMenuDirectly) && (
+        <button 
+          onClick={() => setShowMenuDirectly(true)}
+          className="fixed top-6 right-6 z-[999] w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white/50 hover:text-[#66FCF1] hover:border-[#66FCF1]/50 transition-all shadow-2xl"
+        >
+          <Settings size={20} />
+        </button>
+      )}
+
+      {showMenuDirectly ? (
+        <Menu onNavigate={(target) => unlockAudioAndStart(target)} />
+      ) : !hasUnlockedAudio ? (
         <div className="min-h-[100dvh] flex flex-col items-center justify-center p-6 text-white overflow-hidden relative">
           <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#66FCF1]/5 rounded-full blur-[120px]"></div>
           <div className="z-10 text-center space-y-8 max-w-sm w-full">
@@ -104,14 +126,28 @@ const App: React.FC = () => {
               <input type="text" placeholder="Nome Completo" value={userData.name} onChange={e => setUserData({...userData, name: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
               <input type="email" placeholder="E-mail" value={userData.email} onChange={e => setUserData({...userData, email: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
               <input type="tel" placeholder="WhatsApp" value={userData.phone} onChange={e => setUserData({...userData, phone: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
-              <button onClick={handleStartExperience} disabled={isSubmitting} className="w-full py-5 bg-[#66FCF1] text-[#0B0C10] rounded-xl font-black text-sm shadow-glow-cyan active:scale-95 flex items-center justify-center">
+              
+              <button 
+                onClick={handleStartExperience} 
+                disabled={isSubmitting || !isFormValid} 
+                className={`w-full py-5 rounded-xl font-black text-sm transition-all duration-500 flex items-center justify-center ${
+                  isFormValid && !isSubmitting
+                    ? 'bg-[#66FCF1] text-[#0B0C10] shadow-glow-cyan active:scale-95' 
+                    : 'bg-[#66FCF1]/10 text-white/20 cursor-not-allowed border border-white/5'
+                }`}
+              >
                 {isSubmitting ? <Loader2 className="animate-spin" /> : "INICIAR EXPERIÊNCIA"}
               </button>
             </div>
+            <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.3em]">Toque na engrenagem no topo para pular</p>
           </div>
         </div>
       ) : (
-        <div className="h-[100dvh]">
+        <div className="h-[100dvh] relative">
+          {currentExp === 'MENU' && (
+            <Menu onNavigate={(target) => navigateTo(target)} />
+          )}
+          
           {currentExp === '1A' && (
             <Experience1A 
               onComplete={(n, skip) => {
