@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, Phone, Video, MoreVertical, CheckCheck, Send, Paperclip, Smile, Camera, Mic } from 'lucide-react';
+import { ChevronLeft, Phone, Video, MoreVertical, CheckCheck, Send, Paperclip, Smile } from 'lucide-react';
 import { WhatsAppMessage } from '../types';
 import { GoogleGenAI } from "@google/genai";
 import { EXECUTIVE_AVATAR } from '../constants';
@@ -8,18 +8,11 @@ import { EXECUTIVE_AVATAR } from '../constants';
 interface Experience1AProps {
   onComplete: (name: string, skipCall?: boolean) => void;
   userData: { name: string, email: string, phone: string };
-  preloadedAudioCtx?: AudioContext | null;
-  preloadedKeyboardBuffer?: AudioBuffer | null;
-  preloadedSentBuffer?: AudioBuffer | null;
+  audioCtx: AudioContext | null;
+  buffers: { typing?: AudioBuffer, sent?: AudioBuffer };
 }
 
-const Experience1A: React.FC<Experience1AProps> = ({ 
-  onComplete, 
-  userData,
-  preloadedAudioCtx, 
-  preloadedKeyboardBuffer,
-  preloadedSentBuffer
-}) => {
+const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audioCtx, buffers }) => {
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -37,56 +30,42 @@ const Experience1A: React.FC<Experience1AProps> = ({
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
-          contents: `Determine o gênero gramatical do nome "${firstName}" para saudação formal. Responda apenas "M" para Masculino ou "F" para Feminino.`,
-          config: { 
-            temperature: 0.1, 
-            maxOutputTokens: 2,
-            thinkingConfig: { thinkingBudget: 0 }
-          }
+          contents: `Determine o gênero de "${firstName}". Responda apenas "M" ou "F".`,
+          config: { temperature: 0.1, maxOutputTokens: 2 }
         });
         const result = response.text?.trim()?.toUpperCase();
-        if (result === 'M') setGenderPrefix('Prezado');
-        else if (result === 'F') setGenderPrefix('Prezada');
-        else setGenderPrefix('');
-      } catch (error) {
-        setGenderPrefix('');
-      }
+        setGenderPrefix(result === 'M' ? 'Prezado' : result === 'F' ? 'Prezada' : '');
+      } catch { setGenderPrefix(''); }
     };
     detectGender();
   }, [userData.name]);
 
   const playTypingSound = () => {
-    if (!preloadedAudioCtx || !preloadedKeyboardBuffer || typingSourceRef.current) return;
-    if (preloadedAudioCtx.state === 'suspended') preloadedAudioCtx.resume();
-
-    const source = preloadedAudioCtx.createBufferSource();
-    source.buffer = preloadedKeyboardBuffer;
+    if (!audioCtx || !buffers.typing || typingSourceRef.current) return;
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffers.typing;
     source.loop = true;
-    const gainNode = preloadedAudioCtx.createGain();
-    gainNode.gain.setValueAtTime(0.12, preloadedAudioCtx.currentTime); 
-    source.connect(gainNode);
-    gainNode.connect(preloadedAudioCtx.destination);
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    source.connect(gain).connect(audioCtx.destination);
     source.start(0);
     typingSourceRef.current = source;
   };
 
   const stopTypingSound = () => {
     if (typingSourceRef.current) {
-      try { typingSourceRef.current.stop(); } catch (e) {}
+      try { typingSourceRef.current.stop(); } catch {}
       typingSourceRef.current = null;
     }
   };
 
   const playSentSound = () => {
-    if (!preloadedAudioCtx || !preloadedSentBuffer) return;
-    if (preloadedAudioCtx.state === 'suspended') preloadedAudioCtx.resume();
-
-    const source = preloadedAudioCtx.createBufferSource();
-    source.buffer = preloadedSentBuffer;
-    const gainNode = preloadedAudioCtx.createGain();
-    gainNode.gain.setValueAtTime(0.5, preloadedAudioCtx.currentTime);
-    source.connect(gainNode);
-    gainNode.connect(preloadedAudioCtx.destination);
+    if (!audioCtx || !buffers.sent) return;
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffers.sent;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    source.connect(gain).connect(audioCtx.destination);
     source.start(0);
   };
 
@@ -109,11 +88,10 @@ const Experience1A: React.FC<Experience1AProps> = ({
   };
 
   const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
-    const value = inputValue.trim();
+    if (!inputValue.trim() || inputStep === 'none') return;
     const userMsg: WhatsAppMessage = {
       id: Date.now(),
-      text: value,
+      text: inputValue.trim(),
       sender: "user",
       status: "read",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -121,40 +99,33 @@ const Experience1A: React.FC<Experience1AProps> = ({
     setMessages(prev => [...prev, userMsg]);
     playSentSound();
     setInputValue('');
+    setInputStep('none');
 
-    if (inputStep === 'confirmation') {
-      setInputStep('none');
-      const normalizedValue = value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-      const isNegative = /nao|not|nem|agora n|nao posso|nunca|jamais/i.test(normalizedValue);
+    const normalized = userMsg.text.toLowerCase();
+    const isNegative = /n[ãa]o|not|agora n|nem/i.test(normalized);
 
+    setTimeout(() => {
+      setIsTyping(true);
       setTimeout(() => {
-        setIsTyping(true);
-        setTimeout(() => {
-          setIsTyping(false);
-          if (isNegative) {
-            addSystemMessage("Entendido. Vamos seguir pelo fluxo de mensagens por aqui mesmo.");
-            setTimeout(() => onComplete(userData.name, true), 2000);
-          } else {
-            addSystemMessage("Perfeito. Iniciando conexão de voz criptografada com o D4 Phone...");
-            setTimeout(() => onComplete(userData.name, false), 2500);
-          }
-        }, 2000);
-      }, 1000);
-    }
+        setIsTyping(false);
+        if (isNegative) {
+          addSystemMessage("Entendido. Vamos seguir pelo fluxo de mensagens aqui mesmo.");
+          setTimeout(() => onComplete(userData.name, true), 2000);
+        } else {
+          addSystemMessage("Perfeito. Iniciando conexão de voz criptografada...");
+          setTimeout(() => onComplete(userData.name, false), 2000);
+        }
+      }, 2000);
+    }, 1000);
   };
 
   useEffect(() => {
     if (genderPrefix === null) return;
     const firstName = userData.name.split(' ')[0];
-    const hour = new Date().getHours();
-    const greeting = hour >= 5 && hour < 12 ? "bom dia" : hour >= 12 && hour < 18 ? "boa tarde" : "boa noite";
-
     if (sequenceIndex === 0) {
       setTimeout(() => {
-        const formalGreeting = genderPrefix 
-          ? `${genderPrefix} ${firstName}, ${greeting}.` 
-          : `Olá, ${firstName}, ${greeting}.`;
-        addSystemMessage(`${formalGreeting} Recebi suas credenciais.`);
+        const greeting = genderPrefix ? `${genderPrefix} ${firstName}.` : `Olá, ${firstName}.`;
+        addSystemMessage(`${greeting} Recebi suas credenciais.`);
         setSequenceIndex(1);
       }, 1500);
     } else if (sequenceIndex === 1) {
@@ -162,26 +133,19 @@ const Experience1A: React.FC<Experience1AProps> = ({
         setIsTyping(true);
         setTimeout(() => {
           setIsTyping(false);
-          addSystemMessage(`Eu sou o D4 Seller e serei o responsável por guiar a sua jornada comercial.`);
+          addSystemMessage("Eu sou o D4 Seller. Vou te transferir agora para a D4 Phone para uma experiência de voz real.");
           setTimeout(() => {
             setIsTyping(true);
             setTimeout(() => {
               setIsTyping(false);
-              addSystemMessage("Vou te transferir agora para a D4 Phone. Você experimentará na pele como nossa inteligência de voz conduz uma negociação real.");
-              setTimeout(() => {
-                setIsTyping(true);
-                setTimeout(() => {
-                  setIsTyping(false);
-                  addSystemMessage(`Vou te ligar agora, dura menos de 30 segundos. Mas se não puder atender, seguimos por aqui. Podemos prosseguir, ${firstName}?`);
-                  setInputStep('confirmation');
-                }, 3000);
-              }, 3000);
+              addSystemMessage(`Posso te ligar agora? Dura 30 segundos. Se não puder atender, seguimos aqui. Podemos prosseguir?`);
+              setInputStep('confirmation');
             }, 3000);
-          }, 2000);
+          }, 3000);
         }, 2500);
       }, 1500);
     }
-  }, [sequenceIndex, userData, genderPrefix]);
+  }, [sequenceIndex, genderPrefix]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -190,28 +154,19 @@ const Experience1A: React.FC<Experience1AProps> = ({
   }, [messages, isTyping]);
 
   return (
-    <div className="flex flex-col h-screen max-w-[430px] mx-auto overflow-hidden font-sans relative wa-doodle-bg">
-      <div className="absolute top-0 left-0 right-0 h-10 px-6 flex justify-between items-center text-[14px] font-bold text-[#111b21] pointer-events-none z-[100]">
-        <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-        <div className="flex items-center space-x-1.5">
-          <div className="flex space-x-0.5 items-end"><div className="w-0.5 h-1.5 bg-black rounded-full"></div><div className="w-0.5 h-2 bg-black rounded-full"></div><div className="w-0.5 h-3 bg-black rounded-full"></div><div className="w-0.5 h-4 bg-black/20 rounded-full"></div></div>
-          <span className="text-[11px] font-black">5G</span>
-          <div className="w-6 h-3 border border-black/40 rounded-[3px] relative flex items-center px-0.5 ml-0.5"><div className="w-4 h-[70%] bg-black rounded-[1px]"></div></div>
-        </div>
-      </div>
-
-      <header className="bg-[#f0f2f5]/90 backdrop-blur-md pt-10 pb-2 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 shadow-sm text-[#111b21]">
-        <div className="flex items-center justify-between mt-1">
+    <div className="flex flex-col h-[100dvh] max-w-[430px] mx-auto overflow-hidden font-sans relative wa-doodle-bg">
+      <header className="bg-[#f0f2f5]/95 backdrop-blur-md pt-12 pb-2 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 text-[#111b21]">
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
             <ChevronLeft className="text-[#007aff] w-8 h-8 -ml-2" />
-            <div className="flex items-center space-x-2.5">
-              <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center overflow-hidden relative ring-1 ring-black/5">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 rounded-full overflow-hidden relative border border-black/5">
                 <img src={EXECUTIVE_AVATAR} alt="D4 Seller" className="w-full h-full object-cover" />
-                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#06d755] border-2 border-[#f0f2f5] rounded-full"></div>
+                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#06d755] border-2 border-white rounded-full"></div>
               </div>
-              <div className="leading-tight text-left">
-                <h2 className="text-[16px] font-bold">D4 SELLER</h2>
-                <p className={`text-[12px] font-medium ${isTyping ? 'text-[#06d755]' : 'text-[#667781]'}`}>{isTyping ? 'digitando...' : 'online'}</p>
+              <div className="leading-tight">
+                <h2 className="text-[16px] font-bold uppercase tracking-tighter">D4 SELLER</h2>
+                <p className={`text-[12px] ${isTyping ? 'text-[#06d755]' : 'text-[#667781]'}`}>{isTyping ? 'digitando...' : 'online'}</p>
               </div>
             </div>
           </div>
@@ -219,36 +174,44 @@ const Experience1A: React.FC<Experience1AProps> = ({
         </div>
       </header>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 z-10 scrollbar-hide pb-24 relative bg-transparent">
-        <div className="flex justify-center mb-6 mt-2 relative z-10"><span className="bg-[#d1d7db]/80 backdrop-blur-md text-[#54656f] text-[11px] px-3 py-1.5 rounded-lg font-bold uppercase tracking-wider shadow-sm">Atendimento Ativo</span></div>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 z-10 scrollbar-hide pb-10">
         {messages.map((msg) => (
-          <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300 relative z-10`}>
-            <div className={`${msg.sender === 'user' ? 'bg-[#DCF8C6] user-bubble shadow-sm' : 'bg-white system-bubble shadow-sm'} max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl relative border border-black/[0.03]`}>
-              <div className="text-[14.5px] leading-[1.5] pr-12 whitespace-pre-wrap text-left">{msg.text}</div>
-              <div className="flex items-center justify-end space-x-1 mt-0.5">
-                <span className="text-[9.5px] text-[#667781]/70 font-semibold uppercase">{msg.timestamp}</span>
+          <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
+            <div className={`${msg.sender === 'user' ? 'bg-[#DCF8C6]' : 'bg-white'} max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03] text-[#111b21]`}>
+              <div className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.text}</div>
+              <div className="flex items-center justify-end space-x-1 mt-0.5 opacity-60">
+                <span className="text-[10px] uppercase font-bold">{msg.timestamp}</span>
                 {msg.sender === 'user' && <CheckCheck size={14} className="text-[#53bdeb]" />}
               </div>
-              <div className={`absolute top-0 w-3 h-3 ${msg.sender === 'user' ? '-right-1.5 bg-[#DCF8C6] clip-tail-right' : '-left-1.5 bg-white clip-tail-left'}`}></div>
             </div>
           </div>
         ))}
         {isTyping && (
-          <div className="flex justify-start animate-in fade-in slide-in-from-left-2 relative z-10">
-            <div className="bg-white px-4 py-3 rounded-xl rounded-tl-none shadow-sm flex space-x-1.5 items-center ring-1 ring-black/5">
-              <div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce [animation-delay:-0.3s]" /><div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce [animation-delay:-0.15s]" /><div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce" />
+          <div className="flex justify-start animate-in fade-in">
+            <div className="bg-white px-4 py-3 rounded-xl shadow-sm flex space-x-1">
+              <div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce [animation-delay:-0.3s]" />
+              <div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce [animation-delay:-0.15s]" />
+              <div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce" />
             </div>
           </div>
         )}
       </div>
 
-      <footer className="bg-[#f0f2f5] p-2.5 shrink-0 z-20 border-t border-black/5 flex items-center space-x-2.5 pb-10">
-        <div className="flex items-center space-x-4 text-[#54656f] pl-1 opacity-80"><Smile size={26} /><Paperclip size={24} className="rotate-45" /></div>
-        <div className="flex-1 bg-white rounded-full px-4 py-2.5 flex items-center shadow-inner border border-black/[0.05]">
-          <input type="text" placeholder={inputStep === 'confirmation' ? "Responda aqui..." : "Aguarde..."} disabled={inputStep === 'none'} value={inputValue} onChange={(e) => setInputValue(e.target.value)} className="flex-1 bg-transparent border-none outline-none text-[16px] text-[#111b21] placeholder-[#8696a0]" onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} />
+      <footer className="bg-[#f0f2f5] p-2 shrink-0 z-20 border-t border-black/5 flex items-center space-x-2 pb-[env(safe-area-inset-bottom,20px)]">
+        <div className="flex items-center space-x-4 text-[#54656f] pl-1"><Smile size={26} /><Paperclip size={24} /></div>
+        <div className="flex-1 bg-white rounded-full px-4 py-2 border border-black/5">
+          <input 
+            type="text" 
+            placeholder={inputStep === 'confirmation' ? "Responda aqui..." : "Aguarde..."} 
+            disabled={inputStep === 'none'} 
+            value={inputValue} 
+            onChange={e => setInputValue(e.target.value)} 
+            className="w-full bg-transparent outline-none text-[#111b21]" 
+            onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+          />
         </div>
-        <button onClick={handleSendMessage} disabled={!inputValue.trim() || inputStep === 'none'} className={`w-11 h-11 flex items-center justify-center rounded-full shadow-lg transition-all transform active:scale-90 ${inputValue.trim() ? 'bg-[#00a884] text-white scale-110' : 'bg-[#54656f] text-white opacity-40'}`}>
-          <Send size={18} fill={inputValue.trim() ? "currentColor" : "none"} />
+        <button onClick={handleSendMessage} className={`w-11 h-11 flex items-center justify-center rounded-full ${inputValue.trim() ? 'bg-[#00a884] scale-110' : 'bg-[#54656f] opacity-40'} text-white transition-all`}>
+          <Send size={18} fill="currentColor" />
         </button>
       </footer>
     </div>
