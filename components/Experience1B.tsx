@@ -88,6 +88,13 @@ const Experience1B: React.FC<{ audioCtx: AudioContext | null, onComplete: (refus
     audioRef.current = audio;
   };
 
+  const handleHangUp = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    onComplete(true);
+  };
+
   return (
     <div className="h-[100dvh] bg-black flex flex-col items-center justify-between max-w-[430px] mx-auto relative overflow-hidden text-white font-sans">
       <div className="absolute inset-0 z-0 bg-[#0B0C10]">
@@ -140,7 +147,7 @@ const Experience1B: React.FC<{ audioCtx: AudioContext | null, onComplete: (refus
               ))}
             </div>
             <div className="flex justify-center">
-              <button onClick={() => onComplete(true)} className="w-18 h-18 bg-red-600 rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all"><Phone size={32} className="rotate-[135deg]" /></button>
+              <button onClick={handleHangUp} className="w-18 h-18 bg-red-600 rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all"><Phone size={32} className="rotate-[135deg]" /></button>
             </div>
           </div>
         )}

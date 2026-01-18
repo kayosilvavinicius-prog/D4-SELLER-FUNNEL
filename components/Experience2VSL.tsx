@@ -50,14 +50,14 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
       author: "João M.",
       role: "Diretor Comercial na TechFlow",
       text: "Isso é o futuro das vendas! Impressionante como o framework SPIN está embutido na lógica do bot.",
-      avatar: "https://i.pravatar.cc/150?u=2", // u=2 is male in pravatar usually, but flipping as requested
+      avatar: "https://i.pravatar.cc/150?u=42", // Homem
       time: "45 min"
     },
     {
       author: "Aline S.",
       role: "CEO @ GlowUp Digital",
       text: "Usei o D4 Seller no meu lançamento e o resultado foi absurdo! O follow-up ativo deles não deixa ninguém esfriar.",
-      avatar: "https://i.pravatar.cc/150?u=1", // u=1 is female in pravatar usually
+      avatar: "https://i.pravatar.cc/150?u=12", // Mulher
       time: "12 min"
     }
   ]);
@@ -135,7 +135,7 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
 
   return (
     <div className="min-h-screen bg-[#f3f2ef] font-sans text-[#1e1e1e] overflow-x-hidden">
-      {/* 1️⃣ LINKEDIN HEADER SIMULATION */}
+      {/* LINKEDIN HEADER SIMULATION */}
       <header className="sticky top-0 z-[100] bg-white border-b border-[#e8e8e8] shadow-sm h-16 flex items-center px-4 sm:px-12 justify-between">
         <div className="flex items-center space-x-2 flex-1 max-w-[400px]">
           <div className="bg-[#0A66C2] p-1 rounded-sm text-white font-black text-xl flex items-center justify-center w-8 h-8">in</div>
@@ -155,13 +155,12 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
         </div>
       </header>
 
-      {/* 2️⃣ FEED WRAPPER */}
+      {/* FEED WRAPPER */}
       <main className="max-w-[680px] mx-auto pt-6 px-0 sm:px-4 pb-20">
         
-        {/* 3️⃣ POST CONTAINER */}
+        {/* POST CONTAINER */}
         <div className="bg-white rounded-none sm:rounded-xl shadow-md border border-black/5 overflow-hidden">
           
-          {/* Post Header */}
           <div className="p-4 flex items-start justify-between">
             <div className="flex space-x-3">
               <div className="w-12 h-12 rounded-full overflow-hidden border border-black/5">
@@ -183,7 +182,6 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
             <button className="text-[#666] p-1 rounded-full hover:bg-black/5"><MoreHorizontal size={20} /></button>
           </div>
 
-          {/* Post Text */}
           <div className="px-4 pb-3 space-y-1 text-left">
             <p className="text-sm leading-relaxed">
               Você já imaginou um vendedor digital que conduz decisões — não respostas automáticas?
@@ -196,7 +194,7 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
             </p>
           </div>
 
-          {/* 4️⃣ VÍDEO INTERATIVO (DENTRO DO POST) */}
+          {/* VÍDEO INTERATIVO */}
           <div className="relative aspect-square bg-black border-y border-black/5">
             <video
               ref={videoRef}
@@ -208,7 +206,6 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
               onLoadedMetadata={() => setVideoDuration(videoRef.current?.duration || 0)}
             />
 
-            {/* Questions Floating Overlay (Top Half) */}
             {activeQuestion && isOverlayVisible && (
               <div className="absolute inset-x-4 top-4 z-50 animate-in fade-in slide-in-from-top-4 duration-500">
                 <div className="bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
@@ -239,7 +236,6 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
               </div>
             )}
 
-            {/* End of Video CTA */}
             {isFinishing && (
               <div className="absolute inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-700">
                 <div className="w-full max-w-sm bg-white rounded-3xl p-8 text-center shadow-2xl scale-110">
@@ -260,7 +256,6 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
               </div>
             )}
 
-            {/* Video Progress Line */}
             <div className="absolute bottom-0 left-0 w-full h-1 bg-white/10 z-[60]">
               <div
                 className="h-full bg-[#0A66C2] shadow-[0_0_10px_rgba(10,102,194,0.8)] transition-all duration-300"
@@ -269,7 +264,7 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
             </div>
           </div>
 
-          {/* 5️⃣ INTERACTION SECTION */}
+          {/* INTERACTION SECTION */}
           <div className="px-4 py-2 flex flex-col">
              <div className="flex items-center justify-between py-2 border-b border-[#f0f0f0] mb-1">
                 <div className="flex items-center space-x-1">
@@ -306,7 +301,7 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
              </div>
           </div>
 
-          {/* New Comment Input */}
+          {/* Comment Input */}
           {showCommentInput && (
             <div className="p-4 border-t border-[#f0f0f0] bg-[#f9fafb] animate-in slide-in-from-top-2 duration-300">
               <div className="flex space-x-3">
@@ -333,7 +328,7 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
             </div>
           )}
 
-          {/* 6️⃣ SIMULATED COMMENTS */}
+          {/* SIMULATED COMMENTS */}
           <div className="bg-[#f9fafb] p-4 space-y-4">
             {comments.map((cmt, idx) => (
               <div key={idx} className="flex space-x-3 animate-in slide-in-from-top-4 duration-500">
@@ -360,11 +355,6 @@ const Experience2VSL: React.FC<Experience2VSLProps> = ({ onComplete }) => {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Post Footer Decor */}
-        <div className="mt-4 text-center opacity-30 select-none">
-          <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#666]">Linkedin Experience Simulation • D4 Kingdom</p>
         </div>
       </main>
     </div>

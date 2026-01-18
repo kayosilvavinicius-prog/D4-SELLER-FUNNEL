@@ -22,7 +22,6 @@ const App: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMenuDirectly, setShowMenuDirectly] = useState(false);
   
-  // Iniciamos com campos vazios para forçar o usuário a preencher e testar o botão "acendendo"
   const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
   const [utms, setUtms] = useState({
     utm_source: '', utm_medium: '', utm_campaign: '', utm_content: '', utm_term: ''
@@ -60,9 +59,25 @@ const App: React.FC = () => {
   };
 
   const trackMilestone = async (eventName: string, extraData = {}) => {
-    const payload = { event: eventName, ...userData, ...utms, ...extraData, timestamp: new Date().toLocaleString('pt-BR') };
+    // Para resolver o problema do N/A na planilha, enviamos o nome da etapa como chave 
+    // Isso garante que o script do Google Sheets encontre o valor para a coluna correspondente
+    const payload = { 
+      ...userData, 
+      ...utms, 
+      ...extraData, 
+      [eventName]: "Sim", // Marca a coluna da etapa específica
+      etapa_atual: eventName,
+      event: eventName, 
+      timestamp: new Date().toLocaleString('pt-BR') 
+    };
+
     if (WEBHOOK_URL) {
-      fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }).catch(() => {});
+      fetch(WEBHOOK_URL, { 
+        method: 'POST', 
+        mode: 'no-cors', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload) 
+      }).catch(() => {});
     }
     if ((window as any).fbq) (window as any).fbq('trackCustom', eventName, payload);
   };
@@ -105,7 +120,6 @@ const App: React.FC = () => {
   return (
     <div className={`min-h-[100dvh] bg-[#0B0C10] transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
       
-      {/* Botão de Menu Dev visível em qualquer tela */}
       {(currentExp !== 'MENU' && !showMenuDirectly) && (
         <button 
           onClick={() => setShowMenuDirectly(true)}

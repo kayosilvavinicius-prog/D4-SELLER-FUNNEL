@@ -109,7 +109,15 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
 
   const handleExternalOfferClick = (plano: string) => {
     if (onTrack) onTrack('CLIQUE_BOTAO_COMPRA', { plano });
-    console.log(`Redirecionando para checkout: ${plano}`);
+    
+    // Links de checkout específicos para cada plano conforme solicitado
+    const checkoutLinks: Record<string, string> = {
+      'D4_SELLER_MENSAL': 'https://pay.cakto.com.br/33x8bjb_730658',
+      'D4_SELLER_DIAGNOSTICO_147': 'https://pay.cakto.com.br/dd6foqw_730707'
+    };
+
+    const targetUrl = checkoutLinks[plano] || checkoutLinks['D4_SELLER_MENSAL'];
+    window.location.href = targetUrl;
   };
 
   const testimonials = [
