@@ -6,9 +6,8 @@ import Experience1C from './components/Experience1C';
 import Experience2VSL from './components/Experience2VSL';
 import Diagnostico from './components/Diagnostico';
 import SalesPage from './components/SalesPage';
-import Menu from './components/Menu';
 import { KEYBOARD_SOUND_URL, SENT_SOUND_URL } from './constants';
-import { Loader2, Settings } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Experience as ExperienceType } from './types';
 
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyyIrs2tO1SenLzEms_XdY9Ve2sPLfwbeDhcZ-2m7EL3lMa_uAHykKy3MQNs8mmUX-4Zw/exec"; 
@@ -21,7 +20,6 @@ const App: React.FC = () => {
   const [isFading, setIsFading] = useState(false);
   const [hasUnlockedAudio, setHasUnlockedAudio] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showMenuDirectly, setShowMenuDirectly] = useState(false);
   
   const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
   const [utms, setUtms] = useState({
@@ -59,7 +57,7 @@ const App: React.FC = () => {
     }
   };
 
-  const trackMilestone = async (eventName: string, extraData = {}) => {
+  const trackMilestone = async (eventName: string, extraData: any = {}) => {
     const payload = { 
       ...userData, 
       ...utms, 
@@ -70,7 +68,6 @@ const App: React.FC = () => {
       timestamp: new Date().toLocaleString('pt-BR') 
     };
 
-    // 1. Google Sheets Webhook
     if (WEBHOOK_URL) {
       fetch(WEBHOOK_URL, { 
         method: 'POST', 
@@ -80,34 +77,54 @@ const App: React.FC = () => {
       }).catch(() => {});
     }
 
-    // 2. Meta Pixel Tracking (Otimizado)
     if (typeof window !== 'undefined' && (window as any).fbq) {
       const fbq = (window as any).fbq;
       const options = META_TEST_CODE ? { test_event_code: META_TEST_CODE } : {};
 
-      // Mapeamento para Eventos Padrão do Meta Ads
       if (eventName === 'CADASTRO_INICIAL') {
-        fbq('track', 'Lead', payload, options);
+        fbq('track', 'Lead', {
+          content_name: 'Cadastro Inicial Funil',
+          ...payload
+        }, options);
       } else if (eventName === 'ETAPA_SALES_PAGE_VIEW') {
-        fbq('track', 'ViewContent', payload, options);
+        fbq('track', 'ViewContent', {
+          content_name: 'Página de Vendas D4',
+          content_category: 'Sales',
+          ...payload
+        }, options);
       } else if (eventName === 'CLIQUE_BOTAO_COMPRA') {
-        fbq('track', 'InitiateCheckout', payload, options);
+        const isDiagnostico = extraData.plano === 'D4_SELLER_DIAGNOSTICO_147';
+        const value = isDiagnostico ? 147.00 : 94.00;
+        const productName = isDiagnostico ? 'D4 Seller + Diagnóstico 360' : 'D4 Seller Mensal';
+
+        fbq('track', 'InitiateCheckout', {
+          content_name: productName,
+          content_ids: [extraData.plano],
+          content_type: 'product',
+          value: value,
+          currency: 'BRL',
+          ...payload
+        }, options);
+
+        fbq('trackCustom', 'CliqueBotaoOferta', {
+          plano: productName,
+          valor: value,
+          ...payload
+        }, options);
       } else {
-        // Eventos de funil como Custom Events
         fbq('trackCustom', eventName, payload, options);
       }
     }
   };
 
-  const unlockAudioAndStart = async (target: AppExperience = '1A') => {
+  const unlockAudioAndStart = async () => {
     const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
     const ctx = new AudioContextClass();
     await ctx.resume();
     audioCtxRef.current = ctx;
     await preloadAudios(ctx);
     setHasUnlockedAudio(true);
-    setShowMenuDirectly(false);
-    navigateTo(target);
+    navigateTo('1A');
   };
 
   const handleStartExperience = async () => {
@@ -116,7 +133,7 @@ const App: React.FC = () => {
     }
     setIsSubmitting(true);
     await trackMilestone('CADASTRO_INICIAL');
-    await unlockAudioAndStart('1A');
+    await unlockAudioAndStart();
     setIsSubmitting(false);
   };
 
@@ -137,18 +154,7 @@ const App: React.FC = () => {
   return (
     <div className={`min-h-[100dvh] bg-[#0B0C10] transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
       
-      {(currentExp !== 'MENU' && !showMenuDirectly) && (
-        <button 
-          onClick={() => setShowMenuDirectly(true)}
-          className="fixed top-6 right-6 z-[999] w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white/50 hover:text-[#66FCF1] hover:border-[#66FCF1]/50 transition-all shadow-2xl"
-        >
-          <Settings size={20} />
-        </button>
-      )}
-
-      {showMenuDirectly ? (
-        <Menu onNavigate={(target) => unlockAudioAndStart(target)} />
-      ) : !hasUnlockedAudio ? (
+      {!hasUnlockedAudio ? (
         <div className="min-h-[100dvh] flex flex-col items-center justify-center p-6 text-white overflow-hidden relative">
           <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#66FCF1]/5 rounded-full blur-[120px]"></div>
           <div className="z-10 text-center space-y-8 max-w-sm w-full">
@@ -174,15 +180,11 @@ const App: React.FC = () => {
                 {isSubmitting ? <Loader2 className="animate-spin" /> : "INICIAR EXPERIÊNCIA"}
               </button>
             </div>
-            <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.3em]">Toque na engrenagem no topo para pular</p>
+            <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.3em]">Ambiente Seguro e Criptografado</p>
           </div>
         </div>
       ) : (
         <div className="h-[100dvh] relative">
-          {currentExp === 'MENU' && (
-            <Menu onNavigate={(target) => navigateTo(target)} />
-          )}
-          
           {currentExp === '1A' && (
             <Experience1A 
               onComplete={(n, skip) => {
