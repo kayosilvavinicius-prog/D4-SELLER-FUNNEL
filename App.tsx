@@ -12,6 +12,7 @@ import { Loader2, Settings } from 'lucide-react';
 import { Experience as ExperienceType } from './types';
 
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyyIrs2tO1SenLzEms_XdY9Ve2sPLfwbeDhcZ-2m7EL3lMa_uAHykKy3MQNs8mmUX-4Zw/exec"; 
+const META_TEST_CODE = "TEST61117"; // Código para ferramenta de teste do Meta
 
 type AppExperience = ExperienceType;
 
@@ -59,18 +60,17 @@ const App: React.FC = () => {
   };
 
   const trackMilestone = async (eventName: string, extraData = {}) => {
-    // Para resolver o problema do N/A na planilha, enviamos o nome da etapa como chave 
-    // Isso garante que o script do Google Sheets encontre o valor para a coluna correspondente
     const payload = { 
       ...userData, 
       ...utms, 
       ...extraData, 
-      [eventName]: "Sim", // Marca a coluna da etapa específica
+      [eventName]: "Sim", 
       etapa_atual: eventName,
       event: eventName, 
       timestamp: new Date().toLocaleString('pt-BR') 
     };
 
+    // 1. Google Sheets Webhook
     if (WEBHOOK_URL) {
       fetch(WEBHOOK_URL, { 
         method: 'POST', 
@@ -79,7 +79,24 @@ const App: React.FC = () => {
         body: JSON.stringify(payload) 
       }).catch(() => {});
     }
-    if ((window as any).fbq) (window as any).fbq('trackCustom', eventName, payload);
+
+    // 2. Meta Pixel Tracking (Otimizado)
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      const fbq = (window as any).fbq;
+      const options = META_TEST_CODE ? { test_event_code: META_TEST_CODE } : {};
+
+      // Mapeamento para Eventos Padrão do Meta Ads
+      if (eventName === 'CADASTRO_INICIAL') {
+        fbq('track', 'Lead', payload, options);
+      } else if (eventName === 'ETAPA_SALES_PAGE_VIEW') {
+        fbq('track', 'ViewContent', payload, options);
+      } else if (eventName === 'CLIQUE_BOTAO_COMPRA') {
+        fbq('track', 'InitiateCheckout', payload, options);
+      } else {
+        // Eventos de funil como Custom Events
+        fbq('trackCustom', eventName, payload, options);
+      }
+    }
   };
 
   const unlockAudioAndStart = async (target: AppExperience = '1A') => {
