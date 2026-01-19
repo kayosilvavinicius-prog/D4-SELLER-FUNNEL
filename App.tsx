@@ -58,57 +58,60 @@ const App: React.FC = () => {
   };
 
   const trackMilestone = async (eventName: string, extraData: any = {}) => {
-    const payload = { 
-      ...userData, 
-      ...utms, 
-      ...extraData, 
-      [eventName]: "Sim", 
+    // É CRUCIAL enviar userData em TODAS as etapas para o Sheets saber de quem é o dado
+    const payload: any = { 
+      // Identidade (Sempre enviada)
+      nome: userData.name,
+      name: userData.name,
+      email: userData.email,
+      telefone: userData.phone,
+      whatsapp: userData.phone,
+      phone: userData.phone,
+      
+      // Marcos do Funil
       etapa_atual: eventName,
-      event: eventName, 
-      timestamp: new Date().toLocaleString('pt-BR') 
+      [eventName]: "Concluído", // Cria uma coluna com o nome do evento e marca como concluído
+      
+      // Dados de Contexto
+      timestamp: new Date().toLocaleString('pt-BR'),
+      ...utms, 
+      ...extraData 
     };
 
+    // Log para depuração no console do navegador (F12)
+    console.log(`[Tracking] ${eventName}:`, payload);
+
+    // 1. Google Sheets Webhook (URLSearchParams é o mais compatível)
     if (WEBHOOK_URL) {
+      const formData = new URLSearchParams();
+      for (const key in payload) {
+        // Garantir que não enviamos objetos complexos, apenas strings/números
+        const val = typeof payload[key] === 'object' ? JSON.stringify(payload[key]) : payload[key];
+        formData.append(key, String(val));
+      }
+
       fetch(WEBHOOK_URL, { 
         method: 'POST', 
-        mode: 'no-cors', 
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload) 
-      }).catch(() => {});
+        mode: 'no-cors',
+        body: formData 
+      }).catch((err) => console.error("Webhook Tracking Error:", err));
     }
 
+    // 2. Meta Pixel Tracking
     if (typeof window !== 'undefined' && (window as any).fbq) {
       const fbq = (window as any).fbq;
       const options = META_TEST_CODE ? { test_event_code: META_TEST_CODE } : {};
 
       if (eventName === 'CADASTRO_INICIAL') {
-        fbq('track', 'Lead', {
-          content_name: 'Cadastro Inicial Funil',
-          ...payload
-        }, options);
+        fbq('track', 'Lead', { content_name: 'Cadastro Inicial', ...payload }, options);
       } else if (eventName === 'ETAPA_SALES_PAGE_VIEW') {
-        fbq('track', 'ViewContent', {
-          content_name: 'Página de Vendas D4',
-          content_category: 'Sales',
-          ...payload
-        }, options);
+        fbq('track', 'ViewContent', { content_name: 'Página de Vendas', ...payload }, options);
       } else if (eventName === 'CLIQUE_BOTAO_COMPRA') {
         const isDiagnostico = extraData.plano === 'D4_SELLER_DIAGNOSTICO_147';
-        const value = isDiagnostico ? 147.00 : 94.00;
-        const productName = isDiagnostico ? 'D4 Seller + Diagnóstico 360' : 'D4 Seller Mensal';
-
         fbq('track', 'InitiateCheckout', {
-          content_name: productName,
-          content_ids: [extraData.plano],
-          content_type: 'product',
-          value: value,
+          content_name: isDiagnostico ? 'D4 Seller + Diagnóstico' : 'D4 Seller Mensal',
+          value: isDiagnostico ? 147.00 : 94.00,
           currency: 'BRL',
-          ...payload
-        }, options);
-
-        fbq('trackCustom', 'CliqueBotaoOferta', {
-          plano: productName,
-          valor: value,
           ...payload
         }, options);
       } else {
@@ -132,13 +135,16 @@ const App: React.FC = () => {
       return;
     }
     setIsSubmitting(true);
+    // Primeiro marco: Cadastro
     await trackMilestone('CADASTRO_INICIAL');
     await unlockAudioAndStart();
     setIsSubmitting(false);
   };
 
   const navigateTo = (next: AppExperience, trackName?: string) => {
+    // Registra o avanço da etapa antes de trocar a tela
     if (trackName) trackMilestone(trackName);
+    
     setIsFading(true);
     setTimeout(() => {
       setCurrentExp(next);
@@ -189,7 +195,7 @@ const App: React.FC = () => {
             <Experience1A 
               onComplete={(n, skip) => {
                 setCallOutcome(skip ? 'skipped' : 'completed');
-                navigateTo(skip ? '1C' : '1B', skip ? 'ETAPA_CALL_SKIPPED' : 'ETAPA_CALL_STARTED');
+                navigateTo(skip ? '1C' : '1B', skip ? 'ETAPA_WHATSAPP_CONCLUIDO' : 'ETAPA_CALL_INICIADA');
               }} 
               userData={userData} 
               audioCtx={audioCtxRef.current} 
@@ -201,7 +207,7 @@ const App: React.FC = () => {
               audioCtx={audioCtxRef.current}
               onComplete={(refused) => {
                 setCallOutcome(refused ? 'refused' : 'completed');
-                navigateTo('1C', refused ? 'ETAPA_CALL_REFUSED' : 'ETAPA_CALL_SUCCESS');
+                navigateTo('1C', refused ? 'ETAPA_CALL_RECUSADA' : 'ETAPA_CALL_ATENDIDA');
               }} 
             />
           )}
@@ -209,19 +215,19 @@ const App: React.FC = () => {
             <Experience1C 
               userName={userData.name} 
               callOutcome={callOutcome} 
-              onComplete={() => navigateTo('2-VSL', 'ETAPA_VSL_STARTED')} 
+              onComplete={() => navigateTo('2-VSL', 'ETAPA_VSL_INICIADA')} 
             />
           )}
           {currentExp === '2-VSL' && (
             <Experience2VSL 
               onComplete={(ans) => {
                 setQuizAnswers(ans);
-                navigateTo('DIAGNOSTICO', 'ETAPA_DIAGNOSTICO_VIEW');
+                navigateTo('DIAGNOSTICO', 'ETAPA_QUIZ_VSL_CONCLUIDO');
               }} 
             />
           )}
           {currentExp === 'DIAGNOSTICO' && (
-            <Diagnostico answers={quizAnswers} onComplete={() => navigateTo('SALES', 'ETAPA_SALES_PAGE_VIEW')} />
+            <Diagnostico answers={quizAnswers} onComplete={() => navigateTo('SALES', 'ETAPA_PAGINA_VENDAS_VIEW')} />
           )}
           {currentExp === 'SALES' && (
             <SalesPage onTrack={trackMilestone} />
