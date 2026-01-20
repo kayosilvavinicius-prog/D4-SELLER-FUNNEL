@@ -59,28 +59,25 @@ const App: React.FC = () => {
   };
 
   const trackMilestone = async (eventName: string, extraData: any = {}) => {
-    // Criamos o objeto na ordem exata que o script do Google Sheets costuma esperar
+    // Payload ultra-simplificado para garantir a ordem na planilha
     const payload = { 
       data_hora: new Date().toLocaleString('pt-BR'),
       etapa: eventName,
       nome: userData.name,
       email: userData.email,
       whatsapp: userData.phone,
-      // UTMs e dados adicionais vêm depois
       ...utms, 
       ...extraData 
     };
 
-    console.log(`[Tracking] Enviar -> ${eventName}`, payload);
-
     if (WEBHOOK_URL) {
-      // Usamos text/plain para garantir que o POST chegue ao Google Script sem bloqueio de pre-flight (CORS)
+      // Envio via POST (mode: no-cors é o padrão para Google Scripts para evitar erros de pré-vôo)
       fetch(WEBHOOK_URL, { 
         method: 'POST', 
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' }, 
         body: JSON.stringify(payload) 
-      }).catch((err) => console.error("Webhook Error:", err));
+      }).catch((err) => console.error("Webhook Tracking Error:", err));
     }
 
     // Meta Pixel
@@ -89,19 +86,18 @@ const App: React.FC = () => {
       const options = META_TEST_CODE ? { test_event_code: META_TEST_CODE } : {};
 
       if (eventName === 'CADASTRO_INICIAL') {
-        fbq('track', 'Lead', { content_name: 'Cadastro Inicial', ...payload }, options);
+        fbq('track', 'Lead', { content_name: 'Cadastro Inicial', email: userData.email, phone: userData.phone }, options);
       } else if (eventName === 'ETAPA_SALES_PAGE_VIEW') {
-        fbq('track', 'ViewContent', { content_name: 'Página de Vendas', ...payload }, options);
+        fbq('track', 'ViewContent', { content_name: 'Página de Vendas' }, options);
       } else if (eventName === 'CLIQUE_BOTAO_COMPRA') {
         const isDiagnostico = extraData.plano === 'D4_SELLER_DIAGNOSTICO_147';
         fbq('track', 'InitiateCheckout', {
           content_name: isDiagnostico ? 'D4 Seller + Diagnóstico' : 'D4 Seller Mensal',
           value: isDiagnostico ? 147.00 : 94.00,
-          currency: 'BRL',
-          ...payload
+          currency: 'BRL'
         }, options);
       } else {
-        fbq('trackCustom', eventName, payload, options);
+        fbq('trackCustom', eventName, { email: userData.email }, options);
       }
     }
   };
@@ -121,7 +117,7 @@ const App: React.FC = () => {
       return;
     }
     setIsSubmitting(true);
-    // Registro imediato dos dados iniciais
+    // Primeiro disparo: Registro dos dados iniciais
     await trackMilestone('CADASTRO_INICIAL');
     await unlockAudioAndStart();
     setIsSubmitting(false);
