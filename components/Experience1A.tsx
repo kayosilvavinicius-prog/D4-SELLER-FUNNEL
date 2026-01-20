@@ -182,36 +182,40 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     }
-  }, [messages, isTyping]);
+  }, [messages, isTyping, inputStep]);
 
   return (
-    <div className="flex flex-col h-[100dvh] max-w-[430px] mx-auto overflow-hidden font-sans relative wa-doodle-bg">
-      <header className="bg-[#f0f2f5]/95 backdrop-blur-md pt-12 pb-2 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 text-[#111b21]">
+    <div className="flex flex-col h-[100dvh] max-w-[430px] mx-auto overflow-hidden font-sans relative wa-doodle-bg bg-[#e5ddd5]">
+      <header className="bg-[#f0f2f5]/95 backdrop-blur-md pt-10 pb-2 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 text-[#111b21] shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
             <ChevronLeft className="text-[#007aff] w-8 h-8 -ml-2" />
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-full overflow-hidden relative border border-black/5">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden relative border border-black/5">
                 <img src={EXECUTIVE_AVATAR} alt="D4 Seller" className="w-full h-full object-cover" />
                 <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#06d755] border-2 border-white rounded-full"></div>
               </div>
               <div className="leading-tight">
-                <h2 className="text-[16px] font-bold uppercase tracking-tighter text-left">D4 SELLER</h2>
-                <p className={`text-[12px] text-left ${isTyping ? 'text-[#06d755]' : 'text-[#667781]'}`}>{isTyping ? 'digitando...' : 'online'}</p>
+                <h2 className="text-[15px] sm:text-[16px] font-bold uppercase tracking-tighter text-left">D4 SELLER</h2>
+                <p className={`text-[11px] sm:text-[12px] text-left ${isTyping ? 'text-[#06d755]' : 'text-[#667781]'}`}>{isTyping ? 'digitando...' : 'online'}</p>
               </div>
             </div>
           </div>
-          <div className="flex items-center space-x-5 text-[#007aff]"><Video size={22} /><Phone size={20} /><MoreVertical size={22} className="text-[#54656f]" /></div>
+          <div className="flex items-center space-x-4 sm:space-x-5 text-[#007aff]">
+            <Video size={20} />
+            <Phone size={18} />
+            <MoreVertical size={20} className="text-[#54656f]" />
+          </div>
         </div>
       </header>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 z-10 scrollbar-hide pb-10">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 z-10 scrollbar-hide pb-6">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2`}>
             <div className={`${msg.sender === 'user' ? 'bg-[#DCF8C6]' : 'bg-white'} max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03] text-[#111b21]`}>
-              <div className="text-[15px] leading-relaxed whitespace-pre-wrap text-left">{msg.text}</div>
+              <div className="text-[14px] sm:text-[15px] leading-relaxed whitespace-pre-wrap text-left">{msg.text}</div>
               <div className="flex items-center justify-end space-x-1 mt-0.5 opacity-60">
-                <span className="text-[10px] uppercase font-bold">{msg.timestamp}</span>
+                <span className="text-[9px] sm:text-[10px] uppercase font-bold">{msg.timestamp}</span>
                 {msg.sender === 'user' && <CheckCheck size={14} className="text-[#53bdeb]" />}
               </div>
               {msg.sender === 'system' && <div className="absolute top-0 -left-1.5 w-3 h-3 bg-white clip-tail-left"></div>}
@@ -224,7 +228,7 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
                   <button 
                     key={bIdx}
                     onClick={() => handleButtonClick(btn)}
-                    className="bg-white hover:bg-[#f0f2f5] text-[#00a884] font-bold py-3 px-4 rounded-xl shadow-sm border border-black/5 active:scale-95 transition-all text-center text-sm"
+                    className="bg-white hover:bg-[#f0f2f5] text-[#00a884] font-bold py-2.5 px-4 rounded-xl shadow-sm border border-black/5 active:scale-95 transition-all text-center text-sm"
                   >
                     {btn}
                   </button>
@@ -235,7 +239,7 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
         ))}
         {isTyping && (
           <div className="flex justify-start animate-in fade-in">
-            <div className="bg-white px-4 py-3 rounded-xl shadow-sm flex space-x-1">
+            <div className="bg-white px-3 py-2 rounded-xl shadow-sm flex space-x-1">
               <div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce [animation-delay:-0.3s]" />
               <div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce [animation-delay:-0.15s]" />
               <div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce" />
@@ -244,9 +248,12 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
         )}
       </div>
 
-      <footer className="bg-[#f0f2f5] p-2 shrink-0 z-20 border-t border-black/5 flex items-center space-x-2 pb-[env(safe-area-inset-bottom,20px)]">
-        <div className="flex items-center space-x-4 text-[#54656f] pl-1"><Smile size={26} /><Paperclip size={24} /></div>
-        <div className="flex-1 bg-white rounded-full px-4 py-2 border border-black/5">
+      <footer className="bg-[#f0f2f5] p-2 shrink-0 z-20 border-t border-black/5 flex items-center space-x-2 pb-[env(safe-area-inset-bottom,12px)]">
+        <div className="flex items-center space-x-3 text-[#54656f] pl-1">
+          <Smile size={24} className="opacity-70" />
+          <Paperclip size={22} className="opacity-70" />
+        </div>
+        <div className="flex-1 bg-white rounded-full px-4 py-2 border border-black/5 shadow-inner">
           <input 
             type="text" 
             placeholder={
@@ -256,12 +263,15 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
             disabled={inputStep === 'none'} 
             value={inputValue} 
             onChange={e => setInputValue(e.target.value)} 
-            className="w-full bg-transparent outline-none text-[#111b21]" 
+            className="w-full bg-transparent outline-none text-[#111b21] text-[15px]" 
             onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
           />
         </div>
-        <button onClick={handleSendMessage} className={`w-11 h-11 flex items-center justify-center rounded-full ${inputValue.trim() ? 'bg-[#00a884] scale-110' : 'bg-[#54656f] opacity-40'} text-white transition-all`}>
-          <Send size={18} fill="currentColor" />
+        <button 
+          onClick={handleSendMessage} 
+          className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${inputValue.trim() ? 'bg-[#00a884] scale-105 shadow-md' : 'bg-[#54656f] opacity-40'}`}
+        >
+          <Send size={18} fill="currentColor" className="text-white" />
         </button>
       </footer>
     </div>
