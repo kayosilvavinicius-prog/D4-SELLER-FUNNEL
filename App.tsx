@@ -10,7 +10,7 @@ import { KEYBOARD_SOUND_URL, SENT_SOUND_URL } from './constants';
 import { Loader2 } from 'lucide-react';
 import { Experience as ExperienceType } from './types';
 
-// Nova URL fornecida pelo usuário
+// URL Final fornecida pelo usuário
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzFH7WCADMn85yWwV9FZhfmcDvh_adY34yGAm299KxKCm1or3nYKpiQItceN3kJJ8SeuQ/exec"; 
 const META_TEST_CODE = "TEST61117"; 
 
@@ -59,41 +59,31 @@ const App: React.FC = () => {
   };
 
   const trackMilestone = async (eventName: string, extraData: any = {}) => {
-    // Payload otimizado para preencher Nome, Email e WhatsApp corretamente
+    // Criamos o objeto na ordem exata que o script do Google Sheets costuma esperar
     const payload = { 
-      timestamp: new Date().toLocaleString('pt-BR'),
-      
-      // Enviamos variações para garantir que o script encontre a coluna
+      data_hora: new Date().toLocaleString('pt-BR'),
+      etapa: eventName,
       nome: userData.name,
-      Nome: userData.name,
       email: userData.email,
-      Email: userData.email,
       whatsapp: userData.phone,
-      WhatsApp: userData.phone,
-      telefone: userData.phone,
-      
-      // Marco do funil
-      etapa_atual: eventName,
-      [eventName]: "Sim", 
-      
-      // UTMs e dados de diagnóstico
+      // UTMs e dados adicionais vêm depois
       ...utms, 
       ...extraData 
     };
 
-    console.log(`[Tracking Milestone] ${eventName}`, payload);
+    console.log(`[Tracking] Enviar -> ${eventName}`, payload);
 
     if (WEBHOOK_URL) {
-      // Envio via POST (mode: no-cors para evitar bloqueios de navegador com Google Script)
+      // Usamos text/plain para garantir que o POST chegue ao Google Script sem bloqueio de pre-flight (CORS)
       fetch(WEBHOOK_URL, { 
         method: 'POST', 
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' }, 
         body: JSON.stringify(payload) 
-      }).catch((err) => console.error("Erro no Webhook de Rastreamento:", err));
+      }).catch((err) => console.error("Webhook Error:", err));
     }
 
-    // Rastreamento Meta Pixel
+    // Meta Pixel
     if (typeof window !== 'undefined' && (window as any).fbq) {
       const fbq = (window as any).fbq;
       const options = META_TEST_CODE ? { test_event_code: META_TEST_CODE } : {};
@@ -131,7 +121,7 @@ const App: React.FC = () => {
       return;
     }
     setIsSubmitting(true);
-    // Primeiro envio de dados: Cadastro Inicial
+    // Registro imediato dos dados iniciais
     await trackMilestone('CADASTRO_INICIAL');
     await unlockAudioAndStart();
     setIsSubmitting(false);
