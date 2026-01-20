@@ -10,8 +10,8 @@ import { KEYBOARD_SOUND_URL, SENT_SOUND_URL } from './constants';
 import { Loader2 } from 'lucide-react';
 import { Experience as ExperienceType } from './types';
 
-// URL do Webhook - Certifique-se de usar a URL da "Nova Implantação" como "App da Web"
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzFH7WCADMn85yWwV9FZhfmcDvh_adY34yGAm299KxKCm1or3nYKpiQItceN3kJJ8SeuQ/exec"; 
+// URL do Webhook Atualizada conforme fornecido pelo usuário
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxQau-SChwXppRxOgxYKP87Rr52lKekDUikue5sssEtzhXFwknqxfEvYSr7ioHmn_p4bA/exec"; 
 const META_TEST_CODE = "TEST61117"; 
 
 type AppExperience = ExperienceType;
@@ -59,7 +59,7 @@ const App: React.FC = () => {
   };
 
   const trackMilestone = async (eventName: string, extraData: any = {}) => {
-    // Objeto simples para garantir que a planilha receba os dados na ordem correta
+    // Payload simplificado para garantir a ordem correta na planilha via appendRow
     const payload = { 
       data_hora: new Date().toLocaleString('pt-BR'),
       etapa: eventName,
@@ -71,7 +71,7 @@ const App: React.FC = () => {
     };
 
     if (WEBHOOK_URL) {
-      // Envio como text/plain para evitar erros de CORS e garantir entrega no Google Script
+      // Envio como text/plain para evitar erros de CORS no Google Apps Script
       fetch(WEBHOOK_URL, { 
         method: 'POST', 
         mode: 'no-cors',
@@ -117,7 +117,7 @@ const App: React.FC = () => {
       return;
     }
     setIsSubmitting(true);
-    // Dispara IMEDIATAMENTE para a planilha
+    // Registro imediato na planilha
     await trackMilestone('CADASTRO_INICIAL');
     await unlockAudioAndStart();
     setIsSubmitting(false);
