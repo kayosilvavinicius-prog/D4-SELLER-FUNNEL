@@ -10,8 +10,9 @@ import { KEYBOARD_SOUND_URL, SENT_SOUND_URL } from './constants';
 import { Loader2 } from 'lucide-react';
 import { Experience as ExperienceType } from './types';
 
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyyIrs2tO1SenLzEms_XdY9Ve2sPLfwbeDhcZ-2m7EL3lMa_uAHykKy3MQNs8mmUX-4Zw/exec"; 
-const META_TEST_CODE = "TEST61117"; // Código para ferramenta de teste do Meta
+// Nova URL fornecida pelo usuário
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzFH7WCADMn85yWwV9FZhfmcDvh_adY34yGAm299KxKCm1or3nYKpiQItceN3kJJ8SeuQ/exec"; 
+const META_TEST_CODE = "TEST61117"; 
 
 type AppExperience = ExperienceType;
 
@@ -58,46 +59,41 @@ const App: React.FC = () => {
   };
 
   const trackMilestone = async (eventName: string, extraData: any = {}) => {
-    // É CRUCIAL enviar userData em TODAS as etapas para o Sheets saber de quem é o dado
-    const payload: any = { 
-      // Identidade (Sempre enviada)
-      nome: userData.name,
-      name: userData.name,
-      email: userData.email,
-      telefone: userData.phone,
-      whatsapp: userData.phone,
-      phone: userData.phone,
-      
-      // Marcos do Funil
-      etapa_atual: eventName,
-      [eventName]: "Concluído", // Cria uma coluna com o nome do evento e marca como concluído
-      
-      // Dados de Contexto
+    // Payload otimizado para preencher Nome, Email e WhatsApp corretamente
+    const payload = { 
       timestamp: new Date().toLocaleString('pt-BR'),
+      
+      // Enviamos variações para garantir que o script encontre a coluna
+      nome: userData.name,
+      Nome: userData.name,
+      email: userData.email,
+      Email: userData.email,
+      whatsapp: userData.phone,
+      WhatsApp: userData.phone,
+      telefone: userData.phone,
+      
+      // Marco do funil
+      etapa_atual: eventName,
+      [eventName]: "Sim", 
+      
+      // UTMs e dados de diagnóstico
       ...utms, 
       ...extraData 
     };
 
-    // Log para depuração no console do navegador (F12)
-    console.log(`[Tracking] ${eventName}:`, payload);
+    console.log(`[Tracking Milestone] ${eventName}`, payload);
 
-    // 1. Google Sheets Webhook (URLSearchParams é o mais compatível)
     if (WEBHOOK_URL) {
-      const formData = new URLSearchParams();
-      for (const key in payload) {
-        // Garantir que não enviamos objetos complexos, apenas strings/números
-        const val = typeof payload[key] === 'object' ? JSON.stringify(payload[key]) : payload[key];
-        formData.append(key, String(val));
-      }
-
+      // Envio via POST (mode: no-cors para evitar bloqueios de navegador com Google Script)
       fetch(WEBHOOK_URL, { 
         method: 'POST', 
         mode: 'no-cors',
-        body: formData 
-      }).catch((err) => console.error("Webhook Tracking Error:", err));
+        headers: { 'Content-Type': 'text/plain' }, 
+        body: JSON.stringify(payload) 
+      }).catch((err) => console.error("Erro no Webhook de Rastreamento:", err));
     }
 
-    // 2. Meta Pixel Tracking
+    // Rastreamento Meta Pixel
     if (typeof window !== 'undefined' && (window as any).fbq) {
       const fbq = (window as any).fbq;
       const options = META_TEST_CODE ? { test_event_code: META_TEST_CODE } : {};
@@ -135,16 +131,14 @@ const App: React.FC = () => {
       return;
     }
     setIsSubmitting(true);
-    // Primeiro marco: Cadastro
+    // Primeiro envio de dados: Cadastro Inicial
     await trackMilestone('CADASTRO_INICIAL');
     await unlockAudioAndStart();
     setIsSubmitting(false);
   };
 
   const navigateTo = (next: AppExperience, trackName?: string) => {
-    // Registra o avanço da etapa antes de trocar a tela
     if (trackName) trackMilestone(trackName);
-    
     setIsFading(true);
     setTimeout(() => {
       setCurrentExp(next);
@@ -170,9 +164,27 @@ const App: React.FC = () => {
             </div>
             
             <div className="space-y-4 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-md shadow-2xl">
-              <input type="text" placeholder="Nome Completo" value={userData.name} onChange={e => setUserData({...userData, name: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
-              <input type="email" placeholder="E-mail" value={userData.email} onChange={e => setUserData({...userData, email: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
-              <input type="tel" placeholder="WhatsApp" value={userData.phone} onChange={e => setUserData({...userData, phone: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
+              <input 
+                type="text" 
+                placeholder="Nome Completo" 
+                value={userData.name} 
+                onChange={e => setUserData({...userData, name: e.target.value})} 
+                className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" 
+              />
+              <input 
+                type="email" 
+                placeholder="E-mail" 
+                value={userData.email} 
+                onChange={e => setUserData({...userData, email: e.target.value})} 
+                className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" 
+              />
+              <input 
+                type="tel" 
+                placeholder="WhatsApp" 
+                value={userData.phone} 
+                onChange={e => setUserData({...userData, phone: e.target.value})} 
+                className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" 
+              />
               
               <button 
                 onClick={handleStartExperience} 
