@@ -10,7 +10,7 @@ import { KEYBOARD_SOUND_URL, SENT_SOUND_URL } from './constants';
 import { Loader2 } from 'lucide-react';
 import { Experience as ExperienceType } from './types';
 
-// URL Final fornecida pelo usuário
+// URL do Webhook - Certifique-se de usar a URL da "Nova Implantação" como "App da Web"
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzFH7WCADMn85yWwV9FZhfmcDvh_adY34yGAm299KxKCm1or3nYKpiQItceN3kJJ8SeuQ/exec"; 
 const META_TEST_CODE = "TEST61117"; 
 
@@ -59,7 +59,7 @@ const App: React.FC = () => {
   };
 
   const trackMilestone = async (eventName: string, extraData: any = {}) => {
-    // Payload ultra-simplificado para garantir a ordem na planilha
+    // Objeto simples para garantir que a planilha receba os dados na ordem correta
     const payload = { 
       data_hora: new Date().toLocaleString('pt-BR'),
       etapa: eventName,
@@ -71,13 +71,13 @@ const App: React.FC = () => {
     };
 
     if (WEBHOOK_URL) {
-      // Envio via POST (mode: no-cors é o padrão para Google Scripts para evitar erros de pré-vôo)
+      // Envio como text/plain para evitar erros de CORS e garantir entrega no Google Script
       fetch(WEBHOOK_URL, { 
         method: 'POST', 
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' }, 
         body: JSON.stringify(payload) 
-      }).catch((err) => console.error("Webhook Tracking Error:", err));
+      }).catch((err) => console.error("Webhook Error:", err));
     }
 
     // Meta Pixel
@@ -117,7 +117,7 @@ const App: React.FC = () => {
       return;
     }
     setIsSubmitting(true);
-    // Primeiro disparo: Registro dos dados iniciais
+    // Dispara IMEDIATAMENTE para a planilha
     await trackMilestone('CADASTRO_INICIAL');
     await unlockAudioAndStart();
     setIsSubmitting(false);
