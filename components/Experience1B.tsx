@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Phone, MicOff, Video, Check, X, Speaker, User, Grid3X3, Plus } from 'lucide-react';
-import { CALL_TRANSCRIPT_TIMED, EXECUTIVE_AVATAR } from '../constants';
+import { Phone, MicOff, Video, Speaker, User, Grid3X3, Plus, Mic } from 'lucide-react';
+import { EXECUTIVE_AVATAR } from '../constants';
 
 const CALL_AUDIO_URL = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/b1d9c5ef8aedf13518fe0042af894d74f9b1d160/LIGA%C3%87%C3%83O%20D4%20SELLER.wav";
 const RINGING_AUDIO_URL = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/main/whatsapp_incoming_call.mp3";
@@ -9,7 +9,8 @@ const RINGING_AUDIO_URL = "https://raw.githubusercontent.com/kayosilvavinicius-p
 const Experience1B: React.FC<{ audioCtx: AudioContext | null, onComplete: (refused: boolean) => void }> = ({ audioCtx, onComplete }) => {
   const [status, setStatus] = useState<'ringing' | 'connected' | 'ended'>('ringing');
   const [time, setTime] = useState(0);
-  const [lineIdx, setLineIdx] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isSpeaker, setIsSpeaker] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ringingRef = useRef<HTMLAudioElement | null>(null);
@@ -74,15 +75,6 @@ const Experience1B: React.FC<{ audioCtx: AudioContext | null, onComplete: (refus
   const handleAccept = () => {
     setStatus('connected');
     const audio = new Audio(CALL_AUDIO_URL);
-    audio.ontimeupdate = () => {
-      const ct = audio.currentTime;
-      let idx = 0;
-      for (let i = 0; i < CALL_TRANSCRIPT_TIMED.length; i++) {
-        if (ct >= CALL_TRANSCRIPT_TIMED[i].start) idx = i;
-        else break;
-      }
-      setLineIdx(idx);
-    };
     audio.play();
     audio.onended = () => onComplete(false);
     audioRef.current = audio;
@@ -95,63 +87,125 @@ const Experience1B: React.FC<{ audioCtx: AudioContext | null, onComplete: (refus
     onComplete(true);
   };
 
+  const formatTime = (s: number) => {
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <div className="h-[100dvh] bg-black flex flex-col items-center justify-between max-w-[430px] mx-auto relative overflow-hidden text-white font-sans">
-      <div className="absolute inset-0 z-0 bg-[#0B0C10]">
-        <img src={EXECUTIVE_AVATAR} className="w-full h-full object-cover opacity-30 blur-[20px] scale-110" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/60"></div>
+    <div className="h-[100dvh] bg-black flex flex-col items-center justify-between max-w-[430px] mx-auto relative overflow-hidden text-white font-sans select-none">
+      {/* Background with Blur Effect */}
+      <div className="absolute inset-0 z-0">
+        <img src={EXECUTIVE_AVATAR} className="w-full h-full object-cover opacity-30 blur-[60px] scale-150" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
       </div>
 
-      <div className="pt-20 text-center z-10 w-full px-8 space-y-4">
-        <div className="w-28 h-28 bg-white/5 rounded-full mx-auto flex items-center justify-center shadow-2xl border border-white/10 overflow-hidden backdrop-blur-md">
-          <img src={EXECUTIVE_AVATAR} alt="D4 Seller" className="w-full h-full object-cover" />
-        </div>
+      {/* Top Header - iPhone Style */}
+      <div className={`text-center z-10 w-full space-y-2 animate-in fade-in duration-700 ${status === 'ringing' ? 'pt-20' : 'pt-12'}`}>
         <div className="space-y-1">
-          <h1 className="text-3xl font-black tracking-tight uppercase italic">D4 PHONE</h1>
-          <p className="text-white/60 font-bold uppercase tracking-widest text-xs">
-            {status === 'ringing' ? 'Chamada de áudio WhatsApp...' : `EM LIGAÇÃO • ${Math.floor(time/60)}:${(time%60).toString().padStart(2,'0')}`}
+          <h1 className="text-[34px] font-semibold tracking-tight">D4 PHONE</h1>
+          <p className="text-[18px] text-white/70 font-normal">
+            {status === 'ringing' ? 'WhatsApp áudio...' : formatTime(time)}
           </p>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center items-center w-full px-8 z-10 text-center">
-        {status === 'connected' && (
-           <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 animate-in fade-in duration-500">
-             <p className="text-lg sm:text-xl font-bold italic leading-relaxed text-white drop-shadow-md">
-               "{CALL_TRANSCRIPT_TIMED[lineIdx].text}"
-             </p>
-           </div>
-        )}
+      {/* Central Profile Photo - Size adjusts based on status to fit screen */}
+      <div className={`flex items-center justify-center z-10 w-full px-12 transition-all duration-500 ${status === 'ringing' ? 'flex-1' : 'py-4'}`}>
+        <div className={`rounded-full overflow-hidden border-2 border-white/10 shadow-2xl transition-all duration-500 ${status === 'ringing' ? 'w-40 h-40 sm:w-48 sm:h-48' : 'w-24 h-24 sm:w-28 sm:h-28'}`}>
+          <img src={EXECUTIVE_AVATAR} alt="Perfil" className="w-full h-full object-cover" />
+        </div>
       </div>
 
-      <div className="w-full px-10 pb-16 z-10">
+      {/* Bottom Controls */}
+      <div className={`w-full px-8 z-10 ${status === 'ringing' ? 'pb-16 space-y-12' : 'pb-10 space-y-6'}`}>
         {status === 'ringing' ? (
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-around w-full mb-8">
             <div className="flex flex-col items-center space-y-3">
-              <button onClick={() => onComplete(true)} className="w-18 h-18 bg-red-600 rounded-full flex items-center justify-center shadow-xl active:scale-90"><X size={32} /></button>
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Recusar</span>
+              <button 
+                onClick={() => onComplete(true)} 
+                className="w-20 h-20 bg-[#ff3b30] rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+              >
+                <Phone size={36} className="rotate-[135deg] fill-white text-white" />
+              </button>
+              <span className="text-[13px] font-medium text-white/90">Recusar</span>
             </div>
             <div className="flex flex-col items-center space-y-3">
-              <button onClick={handleAccept} className="w-18 h-18 bg-green-500 rounded-full flex items-center justify-center shadow-xl active:scale-90 animate-bounce"><Check size={32} /></button>
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Atender</span>
+              <button 
+                onClick={handleAccept} 
+                className="w-20 h-20 bg-[#34c759] rounded-full flex items-center justify-center shadow-lg active:scale-90 animate-pulse transition-transform"
+              >
+                <Phone size={36} className="fill-white text-white" />
+              </button>
+              <span className="text-[13px] font-medium text-white/90">Aceitar</span>
             </div>
           </div>
         ) : (
-          <div className="space-y-10">
-            <div className="grid grid-cols-3 gap-y-8 gap-x-4">
-              {[MicOff, Grid3X3, Speaker, Plus, Video, User].map((Icon, i) => (
-                <div key={i} className="flex flex-col items-center space-y-2">
-                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10"><Icon size={24} /></div>
-                  <span className="text-[9px] font-bold uppercase tracking-widest opacity-40">Opção</span>
+          <div className="space-y-4 animate-in slide-in-from-bottom-6 duration-500">
+            <div className="grid grid-cols-3 gap-y-4 gap-x-6">
+              {/* Row 1 */}
+              <div className="flex flex-col items-center space-y-1.5">
+                <button 
+                  onClick={() => setIsMuted(!isMuted)}
+                  className={`w-[72px] h-[72px] rounded-full flex items-center justify-center backdrop-blur-xl transition-all ${isMuted ? 'bg-white text-black' : 'bg-white/10 text-white border border-white/5'}`}
+                >
+                  {isMuted ? <Mic size={28} /> : <MicOff size={28} />}
+                </button>
+                <span className="text-[11px] font-medium text-white/70 uppercase tracking-tighter">mudo</span>
+              </div>
+              <div className="flex flex-col items-center space-y-1.5">
+                <div className="w-[72px] h-[72px] bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5">
+                  <Grid3X3 size={28} />
                 </div>
-              ))}
+                <span className="text-[11px] font-medium text-white/70 uppercase tracking-tighter">teclado</span>
+              </div>
+              <div className="flex flex-col items-center space-y-1.5">
+                <button 
+                  onClick={() => setIsSpeaker(!isSpeaker)}
+                  className={`w-[72px] h-[72px] rounded-full flex items-center justify-center backdrop-blur-xl transition-all ${isSpeaker ? 'bg-white text-black' : 'bg-white/10 text-white border border-white/5'}`}
+                >
+                  <Speaker size={28} />
+                </button>
+                <span className="text-[11px] font-medium text-white/70 uppercase tracking-tighter">alto-falante</span>
+              </div>
+
+              {/* Row 2 */}
+              <div className="flex flex-col items-center space-y-1.5">
+                <div className="w-[72px] h-[72px] bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5 opacity-40">
+                  <Plus size={28} />
+                </div>
+                <span className="text-[11px] font-medium text-white/40 uppercase tracking-tighter">adicionar</span>
+              </div>
+              <div className="flex flex-col items-center space-y-1.5">
+                <div className="w-[72px] h-[72px] bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5 opacity-40">
+                  <Video size={28} />
+                </div>
+                <span className="text-[11px] font-medium text-white/40 uppercase tracking-tighter">FaceTime</span>
+              </div>
+              <div className="flex flex-col items-center space-y-1.5">
+                <div className="w-[72px] h-[72px] bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5">
+                  <User size={28} />
+                </div>
+                <span className="text-[11px] font-medium text-white/70 uppercase tracking-tighter">contatos</span>
+              </div>
             </div>
-            <div className="flex justify-center">
-              <button onClick={handleHangUp} className="w-18 h-18 bg-red-600 rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all"><Phone size={32} className="rotate-[135deg]" /></button>
+
+            {/* Hang Up Button - Always Visible */}
+            <div className="flex justify-center pt-4">
+              <button 
+                onClick={handleHangUp} 
+                className="w-20 h-20 bg-[#ff3b30] rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all"
+              >
+                <Phone size={36} className="rotate-[135deg] fill-white text-white" />
+              </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* iOS Home Indicator */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-36 h-1.5 bg-white/30 rounded-full"></div>
     </div>
   );
 };

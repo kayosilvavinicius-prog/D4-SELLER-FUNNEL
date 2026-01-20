@@ -15,29 +15,12 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const [inputStep, setInputStep] = useState<'confirmation' | 'none'>('none');
+  const [inputStep, setInputStep] = useState<'name' | 'confirmation' | 'none'>('none');
   const [sequenceIndex, setSequenceIndex] = useState(0);
-  const [genderPrefix, setGenderPrefix] = useState<string | null>(null);
+  const [capturedName, setCapturedName] = useState('');
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingSourceRef = useRef<AudioBufferSourceNode | null>(null);
-
-  // Heurística local de gênero (Economiza 100% de tokens no início do funil)
-  useEffect(() => {
-    const firstName = userData.name.trim().split(' ')[0].toLowerCase();
-    const lastChar = firstName.charAt(firstName.length - 1);
-    const commonFemaleEndings = ['a', 'e', 'y', 'i']; // Heurística simples para PT-BR
-    
-    // Lista de exceções comuns ou nomes que terminam em 'a' mas são masculinos
-    const maleExceptions = ['luca', 'bortola', 'garcia', 'paiva', 'sena'];
-    
-    let detected = 'Prezado';
-    if (commonFemaleEndings.includes(lastChar) && !maleExceptions.includes(firstName)) {
-      detected = 'Prezada';
-    }
-    
-    setGenderPrefix(detected);
-  }, [userData.name]);
 
   const playTypingSound = () => {
     if (!audioCtx || !buffers.typing || typingSourceRef.current) return;
@@ -74,77 +57,126 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
     return () => stopTypingSound();
   }, [isTyping]);
 
-  const addSystemMessage = (text: string) => {
+  const addSystemMessage = (text: string, buttons?: string[]) => {
     const msg: WhatsAppMessage = {
       id: Date.now(),
       text,
       sender: "system",
       status: "read",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      buttons
     };
     setMessages(prev => [...prev, msg]);
     playSentSound();
   };
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim() || inputStep === 'none') return;
-    const userMsg: WhatsAppMessage = {
-      id: Date.now(),
-      text: inputValue.trim(),
-      sender: "user",
-      status: "read",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    setMessages(prev => [...prev, userMsg]);
-    playSentSound();
-    setInputValue('');
-    setInputStep('none');
-
-    const normalized = userMsg.text.toLowerCase();
-    const isNegative = /n[ãa]o|not|agora n|nem/i.test(normalized);
-
-    setTimeout(() => {
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        if (isNegative) {
-          addSystemMessage("Entendido. Vamos seguir pelo fluxo de mensagens aqui mesmo.");
-          setTimeout(() => onComplete(userData.name, true), 2000);
-        } else {
-          addSystemMessage("Perfeito. Iniciando conexão de voz criptografada...");
-          setTimeout(() => onComplete(userData.name, false), 2000);
-        }
-      }, 2000);
-    }, 1000);
-  };
-
-  useEffect(() => {
-    if (genderPrefix === null) return;
-    const firstName = userData.name.split(' ')[0];
-    if (sequenceIndex === 0) {
-      setTimeout(() => {
-        const greeting = `${genderPrefix} ${firstName}.`;
-        addSystemMessage(`${greeting} Recebi suas credenciais.`);
-        setSequenceIndex(1);
-      }, 1500);
-    } else if (sequenceIndex === 1) {
+  const handleProcessAnswer = (text: string) => {
+    if (inputStep === 'name') {
+      const name = text.split(' ')[0]; 
+      setCapturedName(text);
+      setInputStep('none');
+      
       setTimeout(() => {
         setIsTyping(true);
         setTimeout(() => {
           setIsTyping(false);
-          addSystemMessage("Eu sou o D4 Seller. Vou te transferir agora para a D4 Phone para uma experiência de voz real.");
+          addSystemMessage(`Prazer em te conhecer, ${name}! 👋`);
+          
           setTimeout(() => {
             setIsTyping(true);
             setTimeout(() => {
               setIsTyping(false);
-              addSystemMessage(`Posso te ligar agora? Dura 30 segundos. Se não puder atender, seguimos aqui. Podemos prosseguir?`);
-              setInputStep('confirmation');
-            }, 3000);
-          }, 3000);
-        }, 2500);
+              addSystemMessage("Eu sou o D4 Seller. Vou te transferir agora para a D4 Phone para uma experiência de atendimento por voz, que você pode ter no seu negócio.");
+              
+              setTimeout(() => {
+                setIsTyping(true);
+                setTimeout(() => {
+                  setIsTyping(false);
+                  addSystemMessage(
+                    `Posso te ligar agora? Dura 30 segundos. Se não puder atender, seguimos por mensagem.`,
+                    ["Seguir por ligação", "Seguir por mensagem"]
+                  );
+                  setInputStep('confirmation');
+                }, 2000);
+              }, 2000);
+            }, 2500);
+          }, 1500);
+        }, 1500);
+      }, 800);
+      
+    } else if (inputStep === 'confirmation') {
+      setInputStep('none');
+      const normalized = text.toLowerCase();
+      const isNegative = /n[ãa]o|not|mensagem|texto|agora n|nem/i.test(normalized);
+
+      setTimeout(() => {
+        setIsTyping(true);
+        setTimeout(() => {
+          setIsTyping(false);
+          if (isNegative) {
+            addSystemMessage("Entendido. Vamos seguir pelo fluxo de mensagens aqui mesmo.");
+            setTimeout(() => onComplete(capturedName, true), 2000);
+          } else {
+            addSystemMessage("Perfeito. Iniciando conexão de voz...");
+            setTimeout(() => onComplete(capturedName, false), 2000);
+          }
+        }, 2000);
+      }, 1000);
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!inputValue.trim() || inputStep === 'none') return;
+    
+    const text = inputValue.trim();
+    const userMsg: WhatsAppMessage = {
+      id: Date.now(),
+      text,
+      sender: "user",
+      status: "read",
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    setMessages(prev => [...prev, userMsg]);
+    playSentSound();
+    setInputValue('');
+    handleProcessAnswer(text);
+  };
+
+  const handleButtonClick = (buttonText: string) => {
+    if (inputStep === 'none') return;
+    
+    const userMsg: WhatsAppMessage = {
+      id: Date.now(),
+      text: buttonText,
+      sender: "user",
+      status: "read",
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    setMessages(prev => [...prev, userMsg]);
+    playSentSound();
+    handleProcessAnswer(buttonText);
+  };
+
+  useEffect(() => {
+    if (sequenceIndex === 0) {
+      setTimeout(() => {
+        addSystemMessage("Seja bem-vindo(a). Recebi sua solicitação de acesso.");
+        
+        setTimeout(() => {
+          setIsTyping(true);
+          setTimeout(() => {
+            setIsTyping(false);
+            addSystemMessage("Mas antes de mais nada, eu preciso saber o seu nome. Como posso te chamar?");
+            setInputStep('name');
+          }, 2000);
+        }, 1500);
+        
+        setSequenceIndex(1);
       }, 1500);
     }
-  }, [sequenceIndex, genderPrefix]);
+  }, [sequenceIndex]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -164,8 +196,8 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
                 <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#06d755] border-2 border-white rounded-full"></div>
               </div>
               <div className="leading-tight">
-                <h2 className="text-[16px] font-bold uppercase tracking-tighter">D4 SELLER</h2>
-                <p className={`text-[12px] ${isTyping ? 'text-[#06d755]' : 'text-[#667781]'}`}>{isTyping ? 'digitando...' : 'online'}</p>
+                <h2 className="text-[16px] font-bold uppercase tracking-tighter text-left">D4 SELLER</h2>
+                <p className={`text-[12px] text-left ${isTyping ? 'text-[#06d755]' : 'text-[#667781]'}`}>{isTyping ? 'digitando...' : 'online'}</p>
               </div>
             </div>
           </div>
@@ -175,14 +207,30 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 z-10 scrollbar-hide pb-10">
         {messages.map((msg) => (
-          <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
+          <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2`}>
             <div className={`${msg.sender === 'user' ? 'bg-[#DCF8C6]' : 'bg-white'} max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03] text-[#111b21]`}>
-              <div className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.text}</div>
+              <div className="text-[15px] leading-relaxed whitespace-pre-wrap text-left">{msg.text}</div>
               <div className="flex items-center justify-end space-x-1 mt-0.5 opacity-60">
                 <span className="text-[10px] uppercase font-bold">{msg.timestamp}</span>
                 {msg.sender === 'user' && <CheckCheck size={14} className="text-[#53bdeb]" />}
               </div>
+              {msg.sender === 'system' && <div className="absolute top-0 -left-1.5 w-3 h-3 bg-white clip-tail-left"></div>}
+              {msg.sender === 'user' && <div className="absolute top-0 -right-1.5 w-3 h-3 bg-[#DCF8C6] clip-tail-right"></div>}
             </div>
+            
+            {msg.buttons && (
+              <div className="flex flex-col space-y-2 mt-2 w-full max-w-[85%] animate-in fade-in duration-500 delay-300">
+                {msg.buttons.map((btn, bIdx) => (
+                  <button 
+                    key={bIdx}
+                    onClick={() => handleButtonClick(btn)}
+                    className="bg-white hover:bg-[#f0f2f5] text-[#00a884] font-bold py-3 px-4 rounded-xl shadow-sm border border-black/5 active:scale-95 transition-all text-center text-sm"
+                  >
+                    {btn}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ))}
         {isTyping && (
@@ -201,7 +249,10 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
         <div className="flex-1 bg-white rounded-full px-4 py-2 border border-black/5">
           <input 
             type="text" 
-            placeholder={inputStep === 'confirmation' ? "Responda aqui..." : "Aguarde..."} 
+            placeholder={
+              inputStep === 'name' ? "Digite seu nome..." : 
+              inputStep === 'confirmation' ? "Escolha uma opção..." : "Aguarde..."
+            } 
             disabled={inputStep === 'none'} 
             value={inputValue} 
             onChange={e => setInputValue(e.target.value)} 

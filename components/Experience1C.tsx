@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, PlayCircle, MoreVertical, Video, Phone } from 'lucide-react';
 import { EXECUTIVE_AVATAR } from '../constants';
@@ -27,7 +28,7 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
 
   return (
     <div className="h-screen wa-doodle-bg max-w-[430px] mx-auto flex flex-col font-sans relative overflow-hidden shadow-2xl">
-      {/* iOS Status Bar Restoration - Black on Chat Screens */}
+      {/* iOS Status Bar */}
       <div className="absolute top-0 left-0 right-0 h-10 px-6 flex justify-between items-center text-[14px] font-bold text-[#111b21] pointer-events-none z-[100]">
         <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         <div className="flex items-center space-x-1.5">
@@ -74,25 +75,11 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
 
         {showMessages && (
           <div className="space-y-4 relative z-10">
-            {isRefused && (
+            {(isRefused || isSkipped) && (
               <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="bg-white system-bubble max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03]">
                   <div className="text-[14.5px] leading-[1.5] pr-12 text-left">
-                    A ligação caiu, mas tudo bem. Seguimos por aqui 🙂
-                  </div>
-                  <div className="flex items-center justify-end space-x-1 mt-0.5">
-                    <span className="text-[9.5px] text-[#667781]/70 font-semibold uppercase">Agora</span>
-                  </div>
-                  <div className="absolute top-0 -left-1.5 w-3 h-3 bg-white clip-tail-left"></div>
-                </div>
-              </div>
-            )}
-
-            {isSkipped && (
-              <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="bg-white system-bubble max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03]">
-                  <div className="text-[14.5px] leading-[1.5] pr-12 text-left">
-                    Ok, como você não pode atender agora, sem problemas. Seguimos por aqui.
+                    {isRefused ? "A ligação caiu, mas tudo bem. Seguimos por aqui 🙂" : "Ok, como você não pode atender agora, sem problemas. Seguimos por aqui."}
                   </div>
                   <div className="flex items-center justify-end space-x-1 mt-0.5">
                     <span className="text-[9.5px] text-[#667781]/70 font-semibold uppercase">Agora</span>
@@ -136,13 +123,6 @@ const Experience1C: React.FC<Experience1CProps> = ({ userName, callOutcome, onCo
           <PlayCircle size={28} fill="currentColor" className="text-white/20" />
           <span className="tracking-tighter uppercase">ASSISTIR O VÍDEO CURTO</span>
         </button>
-        <div className="flex items-center justify-center space-x-2 text-[#8696a0]">
-          <div className="h-px w-8 bg-black/5"></div>
-          <p className="text-[10px] font-black uppercase tracking-widest opacity-50">
-            Framework D4 Kingdom
-          </p>
-          <div className="h-px w-8 bg-black/5"></div>
-        </div>
       </footer>
     </div>
   );
