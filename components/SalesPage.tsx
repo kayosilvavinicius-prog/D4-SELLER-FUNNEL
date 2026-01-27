@@ -64,7 +64,10 @@ import {
   Car,
   Plane,
   Plus,
-  ShoppingCart
+  ShoppingCart,
+  Mail,
+  MoreVertical,
+  Camera
 } from 'lucide-react';
 import { 
   EXPERT_AVATAR, 
@@ -138,18 +141,6 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
       icon: Stethoscope,
       text: "O SPIN Selling aplicado à saúde. O mecanismo entende a dor do paciente e cria a urgência do tratamento antes mesmo da primeira consulta. Reduzimos as faltas em 40%.",
       author: "Dra. Juliana • Odonto Premium"
-    },
-    {
-      niche: "Emagrecimento",
-      icon: HeartPulse,
-      text: "Qualificação Cirúrgica. Minha taxa de conversão em mentorias subiu 35% porque o lead já chega 'quente' e decidido. O bot faz a triagem emocional perfeita.",
-      author: "Renata • Mentoria de Emagrecimento"
-    },
-    {
-      niche: "Psicologia",
-      icon: Brain,
-      text: "Triagem técnica com acolhimento. O sistema garante que eu atenda apenas campos da minha especialidade, alinhando expectativas e otimizando 100% da minha agenda clínica.",
-      author: "Dra. Beatriz • Psicologia Clínica"
     }
   ];
 
@@ -236,6 +227,91 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
               <Lock size={14} />
               <span>Sem compromisso, apenas clareza.</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 📸 MURAL DE PROVAS SOCIAIS - NEW SECTION */}
+      <section className="py-24 px-6 bg-[#050505] border-y border-white/5 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter italic uppercase">
+              O Mecanismo em <span className="text-[#66FCF1]">Ação</span>
+            </h2>
+            <p className="text-[#C5C6C7] text-lg max-w-2xl mx-auto font-light">
+              Veja o que acontece nos bastidores das empresas que já rodam o D4 Seller.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            {/* WhatsApp Mockup 1 */}
+            <div className="bg-[#1F2833]/30 rounded-[2.5rem] border border-white/5 p-6 hover:border-[#00a884]/30 transition-all group overflow-hidden">
+              <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-full bg-[#00a884] flex items-center justify-center text-white font-bold text-[10px]">A</div>
+                  <div className="text-left">
+                    <p className="text-[10px] font-bold">André • Consultoria</p>
+                    <p className="text-[8px] text-[#00a884]">online</p>
+                  </div>
+                </div>
+                <MoreVertical size={14} className="text-white/20" />
+              </div>
+              <div className="space-y-3">
+                <div className="bg-[#0b141a] p-3 rounded-xl rounded-tl-none border border-white/5 max-w-[90%] text-left">
+                  <p className="text-xs text-white/90">"Kayo, o D4 qualificou 12 leads hoje de manhã. 8 já estão com a proposta na mão e 3 já agendaram a call pro período da tarde."</p>
+                  <p className="text-[8px] text-white/30 text-right mt-1">11:42</p>
+                </div>
+                <div className="bg-[#054740] p-3 rounded-xl rounded-tr-none border border-white/5 max-w-[90%] ml-auto text-left">
+                  <p className="text-xs text-white/90">"Excelente! Esse é o poder da condução ativa. Foco no fechamento agora! 🚀"</p>
+                  <p className="text-[8px] text-white/30 text-right mt-1">11:45 ✓✓</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Email Mockup 1 */}
+            <div className="bg-[#1F2833]/30 rounded-[2.5rem] border border-white/5 p-6 hover:border-blue-500/30 transition-all group overflow-hidden">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400">
+                  <Mail size={20} />
+                </div>
+                <div className="text-left leading-none">
+                  <p className="text-[11px] font-black uppercase tracking-widest text-white/60">Notificação de Inbox</p>
+                  <p className="text-[9px] text-blue-400 uppercase tracking-tighter">Sistema de Alertas D4</p>
+                </div>
+              </div>
+              <div className="space-y-4 text-left">
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                  <h4 className="text-xs font-bold text-[#66FCF1] mb-1">Assunto: Pagamento Aprovado!</h4>
+                  <p className="text-[11px] text-white/60">"Olá Kayo, acabamos de receber o sinal da Mentoria High Ticket que o D4 Seller conduziu durante a madrugada."</p>
+                </div>
+                <div className="flex items-center justify-between text-[9px] font-bold text-white/20 uppercase tracking-[0.2em] px-2">
+                  <span>Há 15 minutos</span>
+                  <div className="flex -space-x-1">
+                    {[1,2,3].map(i => <div key={i} className="w-4 h-4 rounded-full bg-white/10 border border-black/20" />)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Success Story Card */}
+            <div className="bg-[#1F2833]/30 rounded-[2.5rem] border border-white/5 p-6 hover:border-[#66FCF1]/30 transition-all group overflow-hidden flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                   <div className="w-8 h-8 bg-[#66FCF1] rounded-lg flex items-center justify-center text-[#0B0C10]"><Camera size={16} /></div>
+                   <span className="text-[10px] font-black uppercase tracking-widest">Snapshot de Resultado</span>
+                </div>
+                <Sparkles size={16} className="text-[#66FCF1] animate-pulse" />
+              </div>
+              <div className="text-left space-y-2">
+                <p className="text-3xl font-black italic tracking-tighter text-white">+R$ 42.500</p>
+                <p className="text-[10px] font-bold text-[#66FCF1] uppercase tracking-[0.2em]">Faturamento Recuperado em 7 dias</p>
+                <p className="text-xs text-white/50 font-light leading-relaxed">
+                  "O D4 Seller fez o follow-up de leads que tinham 'esfriado' no mês passado. Recuperamos 14 vendas sem investir R$ 1 em tráfego."
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -677,7 +753,7 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
         </div>
       </section>
 
-      {/* 8. PERGUNTAS FREQUENTES (REPOSICIONADO E REDESENHADO) */}
+      {/* 8. PERGUNTAS FREQUENTES */}
       <section className="py-24 px-6 max-w-4xl mx-auto">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-center">
@@ -721,7 +797,7 @@ const SalesPage: React.FC<SalesPageProps> = ({ onTrack }) => {
         </div>
       </section>
 
-      {/* 9. EXPERT SECTION - KAYO VINÍCIUS */}
+      {/* 9. EXPERT SECTION */}
       <section id="hero-expert" className="bg-[#0B0C10] py-24 px-6 border-t border-white/5">
         <div className="max-w-4xl mx-auto text-center space-y-10">
           <h2 className="text-3xl md:text-5xl font-black leading-tight tracking-tighter italic">

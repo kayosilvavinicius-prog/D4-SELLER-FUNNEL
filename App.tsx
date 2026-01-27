@@ -6,20 +6,22 @@ import Experience1C from './components/Experience1C';
 import Experience2VSL from './components/Experience2VSL';
 import Diagnostico from './components/Diagnostico';
 import SalesPage from './components/SalesPage';
-import { KEYBOARD_SOUND_URL, SENT_SOUND_URL } from './constants';
-import { Loader2, ArrowRight, ShieldCheck, Lock } from 'lucide-react';
+import Menu from './components/Menu';
+import { KEYBOARD_SOUND_URL, SENT_SOUND_URL, EXECUTIVE_AVATAR } from './constants';
+import { Loader2, ArrowRight, ShieldCheck, Settings, CheckCircle2, AlertCircle, FileText, Sparkles, X } from 'lucide-react';
 import { Experience as ExperienceType } from './types';
 
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxQau-SChwXppRxOgxYKP87Rr52lKekDUikue5sssEtzhXFwknqxfEvYSr7ioHmn_p4bA/exec"; 
-const META_TEST_CODE = "TEST61117"; 
 
-type AppExperience = ExperienceType | 'LEAD_GATE';
+type AppExperience = ExperienceType | 'LEAD_GATE' | 'MENU';
 
 const App: React.FC = () => {
   const [currentExp, setCurrentExp] = useState<AppExperience>('1A');
+  const [lastExpBeforeMenu, setLastExpBeforeMenu] = useState<AppExperience>('1A');
   const [isFading, setIsFading] = useState(false);
   const [hasUnlockedAudio, setHasUnlockedAudio] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   
   const [userData, setUserData] = useState({ name: '', email: '', phone: '' });
   const [utms, setUtms] = useState({
@@ -32,8 +34,8 @@ const App: React.FC = () => {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioBuffers = useRef<{ typing?: AudioBuffer, sent?: AudioBuffer }>({});
 
-  // Captura UTMs e registra a visita inicial IMEDIATAMENTE
   useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     const params = new URLSearchParams(window.location.search);
     const capturedUtms = {
       utm_source: params.get('utm_source') || '',
@@ -44,32 +46,10 @@ const App: React.FC = () => {
     };
     setUtms(capturedUtms);
 
-    // Registro automático de chegada (mesmo sem clique no botão)
-    const trackArrival = async () => {
-      const payload = { 
-        data_hora: new Date().toLocaleString('pt-BR'),
-        etapa: 'VISITA_PAGINA_INICIAL',
-        nome: "Visitante Anônimo",
-        email: "aguardando@leadhub.com",
-        whatsapp: "000000000",
-        ...capturedUtms
-      };
+    if (params.get('step') === 'sales') { setHasUnlockedAudio(true); setCurrentExp('SALES'); }
+    else if (params.get('step') === 'diagnostico') { setHasUnlockedAudio(true); setCurrentExp('DIAGNOSTICO'); }
 
-      if (WEBHOOK_URL) {
-        fetch(WEBHOOK_URL, { 
-          method: 'POST', 
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain' }, 
-          body: JSON.stringify(payload) 
-        }).catch((err) => console.error("Webhook Arrival Error:", err));
-      }
-
-      if (typeof window !== 'undefined' && (window as any).fbq) {
-        (window as any).fbq('track', 'PageView', { ...capturedUtms });
-      }
-    };
-
-    trackArrival();
+    return () => clearInterval(timer);
   }, []);
 
   const preloadAudios = async (ctx: AudioContext) => {
@@ -81,56 +61,42 @@ const App: React.FC = () => {
     try {
       audioBuffers.current.typing = await load(KEYBOARD_SOUND_URL);
       audioBuffers.current.sent = await load(SENT_SOUND_URL);
-    } catch (e) {
-      console.error("Audio Load Error:", e);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const trackMilestone = async (eventName: string, extraData: any = {}) => {
     const payload = { 
       data_hora: new Date().toLocaleString('pt-BR'),
       etapa: eventName,
-      nome: userData.name || "Interesse Inicial",
+      nome: userData.name || "Visitante",
       email: userData.email || "aguardando@leadhub.com",
       whatsapp: userData.phone || "000000000",
-      ...utms, 
-      ...extraData 
+      ...utms, ...extraData 
     };
-
     if (WEBHOOK_URL) {
-      fetch(WEBHOOK_URL, { 
-        method: 'POST', 
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' }, 
-        body: JSON.stringify(payload) 
-      }).catch((err) => console.error("Webhook Error:", err));
+      fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }).catch(() => {});
     }
+  };
 
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      const fbq = (window as any).fbq;
-      const options = META_TEST_CODE ? { test_event_code: META_TEST_CODE } : {};
-      fbq('trackCustom', eventName, { email: userData.email, name: userData.name, ...utms }, options);
+  const toggleMenu = () => {
+    if (currentExp === 'MENU') {
+      setCurrentExp(lastExpBeforeMenu);
+    } else {
+      setLastExpBeforeMenu(currentExp);
+      setCurrentExp('MENU');
     }
   };
 
   const unlockAudioAndStart = async () => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
-    const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-    const ctx = new AudioContextClass();
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     await ctx.resume();
     audioCtxRef.current = ctx;
     await preloadAudios(ctx);
     setHasUnlockedAudio(true);
     setIsSubmitting(false);
     navigateTo('1A', 'INICIO_EXPERIENCIA_CONFIRMADO');
-  };
-
-  const handleLeadSubmit = async () => {
-    if (!userData.name || !userData.email || !userData.phone) return;
-    setIsSubmitting(true);
-    await trackMilestone('CADASTRO_CONCLUIDO_POS_VSL');
-    navigateTo('DIAGNOSTICO', 'ETAPA_DIAGNOSTICO_VIEW');
-    setIsSubmitting(false);
   };
 
   const navigateTo = (next: AppExperience, trackName?: string) => {
@@ -143,142 +109,143 @@ const App: React.FC = () => {
     }, 400);
   };
 
-  const isFormValid = userData.name.trim().length > 0 && 
-                      userData.email.trim().length > 0 && 
-                      userData.phone.trim().length >= 8;
+  const formattedDate = currentTime.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const formattedTime = currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className={`min-h-[100dvh] bg-[#0B0C10] transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
+    <div className={`min-h-[100dvh] bg-[#0B0C10] transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'} relative`}>
       
-      {!hasUnlockedAudio ? (
-        <div className="min-h-[100dvh] flex flex-col items-center justify-center p-6 text-white overflow-hidden relative">
-          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#66FCF1]/5 rounded-full blur-[120px]"></div>
-          <div className="z-10 text-center space-y-12 max-w-sm w-full animate-in fade-in zoom-in duration-1000">
-            <div className="space-y-2 flex flex-col items-center">
-              <h1 className="text-6xl font-black uppercase italic tracking-tighter">D4 <span className="text-[#66FCF1]">Kingdom</span></h1>
-              <p className="text-[11px] font-bold text-[#66FCF1] uppercase tracking-[0.5em] opacity-80 mt-1">Engenharia de Vendas</p>
+      {/* MENU GLOBAL PERSISTENTE */}
+      <div className="fixed top-6 right-6 z-[1000]">
+        <button 
+          onClick={toggleMenu}
+          className={`p-3.5 backdrop-blur-2xl rounded-2xl border transition-all active:scale-90 shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${
+            currentExp === 'MENU' 
+            ? 'bg-red-500/20 border-red-500/30 text-red-500' 
+            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+          }`}
+        >
+          {currentExp === 'MENU' ? <X size={20} /> : <Settings size={20} />}
+        </button>
+      </div>
+
+      {!hasUnlockedAudio && currentExp !== 'MENU' ? (
+        <div className="min-h-[100dvh] relative overflow-hidden flex flex-col items-center bg-black">
+          {/* Fundo com efeito Premium */}
+          <div className="absolute inset-0 bg-cover bg-center opacity-40 scale-105" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80&w=1200)' }}></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/30 to-black/95"></div>
+
+          {/* Topo - Brand */}
+          <div className="z-[60] w-full px-8 py-8 flex justify-start items-center">
+            <div className="flex items-center space-x-2 text-white/90">
+              <Sparkles size={16} className="text-[#66FCF1] animate-pulse" />
+              <span className="text-[12px] font-black tracking-[0.4em] uppercase">D4 KINGDOM</span>
             </div>
-            
-            <div className="space-y-6">
-              <p className="text-white/60 text-sm font-medium leading-relaxed uppercase tracking-widest">
-                Você está prestes a iniciar uma simulação de condução comercial acelerada.
-              </p>
-              <button 
-                onClick={unlockAudioAndStart} 
-                disabled={isSubmitting}
-                className="group w-full py-6 bg-[#66FCF1] text-[#0B0C10] rounded-2xl font-black text-lg shadow-glow-cyan active:scale-95 transition-all flex items-center justify-center space-x-3"
-              >
-                {isSubmitting ? <Loader2 className="animate-spin" /> : (
-                  <>
-                    <span>INICIAR EXPERIÊNCIA</span>
-                    <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </button>
-            </div>
-            <p className="text-[10px] text-white/20 font-black uppercase tracking-[0.3em]">Ambiente Seguro e Criptografado</p>
           </div>
-        </div>
-      ) : (
-        <div className="h-[100dvh] relative">
-          {currentExp === '1A' && (
-            <Experience1A 
-              onComplete={(capturedName, skip) => {
-                setUserData(prev => ({ ...prev, name: capturedName }));
-                setCallOutcome(skip ? 'skipped' : 'completed');
-                navigateTo(skip ? '1C' : '1B', skip ? 'ETAPA_WHATSAPP_CONCLUIDO' : 'ETAPA_CALL_INICIADA');
-              }} 
-              userData={userData} 
-              audioCtx={audioCtxRef.current} 
-              buffers={audioBuffers.current}
-            />
-          )}
-          {currentExp === '1B' && (
-            <Experience1B 
-              audioCtx={audioCtxRef.current}
-              onComplete={(refused) => {
-                setCallOutcome(refused ? 'refused' : 'completed');
-                navigateTo('1C', refused ? 'ETAPA_CALL_RECUSADA' : 'ETAPA_CALL_ATENDIDA');
-              }} 
-            />
-          )}
-          {currentExp === '1C' && (
-            <Experience1C 
-              userName={userData.name} 
-              callOutcome={callOutcome} 
-              onComplete={() => navigateTo('2-VSL', 'ETAPA_VSL_INICIADA')} 
-            />
-          )}
-          {currentExp === '2-VSL' && (
-            <Experience2VSL 
-              onComplete={(ans) => {
-                setQuizAnswers(ans);
-                navigateTo('LEAD_GATE', 'VSL_CONCLUIDA_AGUARDANDO_LEAD');
-              }} 
-            />
-          )}
-          {currentExp === 'LEAD_GATE' && (
-            <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#0B0C10] text-white">
-              <div className="max-w-md w-full space-y-8 text-center animate-in fade-in slide-in-from-bottom-6 duration-700">
-                <div className="w-20 h-20 bg-[#66FCF1]/10 rounded-3xl flex items-center justify-center mx-auto border border-[#66FCF1]/20 shadow-glow-cyan">
-                  <ShieldCheck size={40} className="text-[#66FCF1]" />
+
+          {/* Relógio Centralizado */}
+          <div className="z-20 mt-2 text-center text-white space-y-1 animate-in fade-in duration-1000">
+            <p className="text-[13px] font-medium capitalize opacity-40 tracking-[0.2em]">{formattedDate}</p>
+            <h1 className="text-8xl font-thin tracking-tighter tabular-nums">{formattedTime}</h1>
+          </div>
+          
+          {/* Card Principal - Enquadramento Melhorado */}
+          <div className="z-20 w-full max-w-sm px-6 flex-1 flex flex-col justify-center pb-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+            <div onClick={unlockAudioAndStart} className="group relative cursor-pointer active:scale-[0.99] transition-all duration-300">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#66FCF1]/40 to-blue-500/40 rounded-[2.8rem] blur opacity-30 group-hover:opacity-60 transition duration-700"></div>
+              
+              <div className="relative bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[2.8rem] p-8 shadow-2xl space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-14 h-14 bg-gradient-to-br from-[#00a884] to-[#00c99d] rounded-2xl flex items-center justify-center overflow-hidden border border-white/20 shadow-xl">
+                      <img src={EXECUTIVE_AVATAR} alt="D4" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="leading-tight text-left">
+                      <h3 className="text-[17px] font-black text-white italic tracking-tighter uppercase">D4 Seller</h3>
+                      <p className="text-[10px] font-bold text-[#66FCF1] uppercase tracking-[0.2em] mt-0.5 opacity-80">Analista de Vendas</p>
+                    </div>
+                  </div>
+                  <div className="text-[10px] font-black text-[#66FCF1] uppercase tracking-widest bg-[#66FCF1]/10 px-4 py-2 rounded-full border border-[#66FCF1]/20">Online</div>
                 </div>
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-black italic uppercase tracking-tighter leading-none">Acesse seu Diagnóstico</h2>
-                  <p className="text-white/50 text-sm font-light">Confirme seus dados para que nossa IA gere o relatório personalizado para <strong>{userData.name.split(' ')[0]}</strong>.</p>
-                </div>
-                <div className="space-y-4 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-md">
-                  <input 
-                    type="text" 
-                    placeholder="Seu Nome Completo" 
-                    value={userData.name} 
-                    onChange={e => setUserData({...userData, name: e.target.value})} 
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1] transition-colors" 
-                  />
-                  <input 
-                    type="email" 
-                    placeholder="Seu Melhor E-mail" 
-                    value={userData.email} 
-                    onChange={e => setUserData({...userData, email: e.target.value})} 
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1] transition-colors" 
-                  />
-                  <input 
-                    type="tel" 
-                    placeholder="WhatsApp com DDD" 
-                    value={userData.phone} 
-                    onChange={e => setUserData({...userData, phone: e.target.value})} 
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1] transition-colors" 
-                  />
-                  <button 
-                    onClick={handleLeadSubmit} 
-                    disabled={isSubmitting || !isFormValid} 
-                    className={`w-full py-5 rounded-xl font-black text-sm transition-all duration-500 flex items-center justify-center space-x-2 ${
-                      isFormValid && !isSubmitting
-                        ? 'bg-[#66FCF1] text-[#0B0C10] shadow-glow-cyan active:scale-95' 
-                        : 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5'
-                    }`}
-                  >
-                    {isSubmitting ? <Loader2 className="animate-spin" /> : (
-                      <>
-                        <span>DESBLOQUEAR DIAGNÓSTICO</span>
-                        <ArrowRight size={18} />
-                      </>
-                    )}
-                  </button>
-                  <div className="flex items-center justify-center space-x-2 text-[9px] text-white/20 font-bold uppercase tracking-widest pt-2">
-                    <Lock size={10} />
-                    <span>Dados Protegidos via LGPD</span>
+
+                <div className="space-y-4">
+                  <h2 className="text-[22px] font-bold leading-tight text-white text-left tracking-tight">
+                    Auditoria de Conversão: Detecte onde você perde dinheiro.
+                  </h2>
+                  <p className="text-sm text-white/50 text-left leading-relaxed font-medium">
+                    Descubra o impacto do seu atendimento nas suas vendas mensais.
+                  </p>
+                  
+                  <div className="space-y-3.5 pt-5 border-t border-white/5">
+                    <div className="flex items-center space-x-3 text-white/70">
+                      <div className="w-6 h-6 bg-[#66FCF1]/10 rounded-lg flex items-center justify-center border border-[#66FCF1]/20 shrink-0">
+                        <CheckCircle2 size={14} className="text-[#66FCF1]" />
+                      </div>
+                      <span className="text-[12px] font-medium uppercase tracking-tight">Análise técnica em 60s</span>
+                    </div>
+                    <div className="flex items-center space-x-3 text-red-400/80 animate-pulse">
+                      <div className="w-6 h-6 bg-red-500/10 rounded-lg flex items-center justify-center border border-red-500/20 shrink-0">
+                        <AlertCircle size={14} className="text-red-400" />
+                      </div>
+                      <span className="text-[11px] font-black uppercase tracking-tighter">Gratuito para CNPJ</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#66FCF1]/5 border border-[#66FCF1]/20 rounded-[1.5rem] p-4 flex items-center space-x-4 mt-4">
+                    <div className="w-10 h-10 bg-[#66FCF1]/10 rounded-xl flex items-center justify-center shrink-0">
+                      <FileText size={20} className="text-[#66FCF1]" />
+                    </div>
+                    <p className="text-[11px] font-bold text-white/60 leading-snug text-left">
+                      Seu <span className="text-[#66FCF1]">Relatório de Performance Comercial</span> será gerado automaticamente ao final <span className="text-white">desta experiência.</span>
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
+
+            <div className="mt-12 space-y-4">
+              <button 
+                onClick={unlockAudioAndStart} 
+                className="group w-full py-6 bg-gradient-to-r from-[#66FCF1] to-[#34D399] text-[#0B0C10] rounded-[1.25rem] font-black text-lg shadow-[0_15px_40px_rgba(102,252,241,0.3)] hover:shadow-[0_20px_50px_rgba(102,252,241,0.4)] active:scale-[0.97] transition-all flex items-center justify-center space-x-3 uppercase tracking-tighter animate-pulse-gentle"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <>
+                    <span>INICIAR AUDITORIA</span>
+                    <ArrowRight size={24} className="group-hover:translate-x-1.5 transition-transform" />
+                  </>
+                )}
+              </button>
+              <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.5em] text-center">Protocolo D4 Kingdom Experience</p>
+            </div>
+          </div>
+          
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-36 h-1.5 bg-white/10 rounded-full"></div>
+        </div>
+      ) : (
+        <div className="h-[100dvh]">
+          {currentExp === 'MENU' && <Menu onNavigate={(target) => { setHasUnlockedAudio(true); navigateTo(target); }} />}
+          {currentExp === '1A' && <Experience1A onComplete={(n, skip) => { setUserData(p => ({ ...p, name: n })); setCallOutcome(skip ? 'skipped' : 'completed'); navigateTo(skip ? '1C' : '1B', skip ? 'WHATSAPP_CONCLUIDO' : 'CALL_INICIADA'); }} userData={userData} audioCtx={audioCtxRef.current} buffers={audioBuffers.current} />}
+          {currentExp === '1B' && <Experience1B audioCtx={audioCtxRef.current} onComplete={(ref) => { setCallOutcome(ref ? 'refused' : 'completed'); navigateTo('1C', ref ? 'CALL_RECUSADA' : 'CALL_ATENDIDA'); }} />}
+          {currentExp === '1C' && <Experience1C userName={userData.name} callOutcome={callOutcome} onComplete={() => navigateTo('2-VSL', 'VSL_INICIADA')} />}
+          {currentExp === '2-VSL' && <Experience2VSL onComplete={(ans) => { setQuizAnswers(ans); navigateTo('LEAD_GATE', 'VSL_CONCLUIDA'); }} />}
+          {currentExp === 'LEAD_GATE' && (
+            <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#0B0C10] text-white">
+              <div className="max-w-md w-full space-y-8 text-center animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <div className="w-20 h-20 bg-[#66FCF1]/10 rounded-3xl flex items-center justify-center mx-auto border border-[#66FCF1]/20 shadow-glow-cyan"><ShieldCheck size={40} className="text-[#66FCF1]" /></div>
+                <h2 className="text-3xl font-black italic uppercase tracking-tighter">Acesse seu Diagnóstico</h2>
+                <div className="space-y-4 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-md">
+                  <input type="text" placeholder="Nome Completo" value={userData.name} onChange={e => setUserData({...userData, name: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
+                  <input type="email" placeholder="Seu melhor e-mail" value={userData.email} onChange={e => setUserData({...userData, email: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
+                  <input type="tel" placeholder="WhatsApp" value={userData.phone} onChange={e => setUserData({...userData, phone: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-[#66FCF1]" />
+                  <button onClick={() => navigateTo('DIAGNOSTICO', 'CADASTRO_CONCLUIDO')} disabled={!userData.name || !userData.email || !userData.phone} className="w-full py-5 bg-[#66FCF1] text-[#0B0C10] rounded-xl font-black shadow-glow-cyan">DESBLOQUEAR DIAGNÓSTICO</button>
+                </div>
+              </div>
+            </div>
           )}
-          {currentExp === 'DIAGNOSTICO' && (
-            <Diagnostico answers={quizAnswers} onComplete={() => navigateTo('SALES', 'ETAPA_PAGINA_VENDAS_VIEW')} />
-          )}
-          {currentExp === 'SALES' && (
-            <SalesPage onTrack={trackMilestone} />
-          )}
+          {currentExp === 'DIAGNOSTICO' && <Diagnostico answers={quizAnswers} onComplete={() => navigateTo('SALES', 'VIEW_VENDAS')} />}
+          {currentExp === 'SALES' && <SalesPage onTrack={trackMilestone} />}
         </div>
       )}
     </div>
