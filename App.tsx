@@ -132,7 +132,8 @@ const App: React.FC = () => {
   return (
     <div className={`min-h-[100dvh] bg-[#0B0C10] transition-opacity duration-400 ${isFading ? 'opacity-0' : 'opacity-100'} relative`}>
       
-      {/* MENU GLOBAL PERSISTENTE */}
+      {/* MENU GLOBAL PERSISTENTE - OCULTO PARA LANÇAMENTO AO PÚBLICO */}
+      {/* 
       <div className="fixed top-6 right-6 z-[1000]">
         <button 
           onClick={toggleMenu}
@@ -145,6 +146,7 @@ const App: React.FC = () => {
           {currentExp === 'MENU' ? <X size={20} /> : <Settings size={20} />}
         </button>
       </div>
+      */}
 
       {!hasUnlockedAudio && currentExp !== 'MENU' ? (
         <div className="min-h-[100dvh] relative overflow-hidden flex flex-col items-center bg-black">
