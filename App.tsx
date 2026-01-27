@@ -7,7 +7,7 @@ import Experience2VSL from './components/Experience2VSL';
 import Diagnostico from './components/Diagnostico';
 import SalesPage from './components/SalesPage';
 import Menu from './components/Menu';
-import { KEYBOARD_SOUND_URL, SENT_SOUND_URL, EXECUTIVE_AVATAR } from './constants';
+import { KEYBOARD_SOUND_URL, SENT_SOUND_URL, NOTIFICATION_SOUND_URL, UNLOCK_SOUND_URL, EXECUTIVE_AVATAR } from './constants';
 import { Loader2, ArrowRight, ShieldCheck, Settings, CheckCircle2, AlertCircle, FileText, Sparkles, X } from 'lucide-react';
 import { Experience as ExperienceType } from './types';
 
@@ -32,7 +32,7 @@ const App: React.FC = () => {
   const [callOutcome, setCallOutcome] = useState<'completed' | 'refused' | 'skipped'>('completed');
   
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const audioBuffers = useRef<{ typing?: AudioBuffer, sent?: AudioBuffer }>({});
+  const audioBuffers = useRef<{ typing?: AudioBuffer, sent?: AudioBuffer, notification?: AudioBuffer, unlock?: AudioBuffer }>({});
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -54,14 +54,30 @@ const App: React.FC = () => {
 
   const preloadAudios = async (ctx: AudioContext) => {
     const load = async (url: string) => {
-      const res = await fetch(url);
-      const arrayBuffer = await res.arrayBuffer();
-      return await ctx.decodeAudioData(arrayBuffer);
+      try {
+        const res = await fetch(url);
+        const arrayBuffer = await res.arrayBuffer();
+        return await ctx.decodeAudioData(arrayBuffer);
+      } catch (e) {
+        console.error("Erro ao carregar áudio:", url, e);
+        return undefined;
+      }
     };
     try {
       audioBuffers.current.typing = await load(KEYBOARD_SOUND_URL);
       audioBuffers.current.sent = await load(SENT_SOUND_URL);
+      audioBuffers.current.notification = await load(NOTIFICATION_SOUND_URL);
+      audioBuffers.current.unlock = await load(UNLOCK_SOUND_URL);
     } catch (e) { console.error(e); }
+  };
+
+  const playUnlockSound = () => {
+    if (audioCtxRef.current && audioBuffers.current.unlock) {
+      const source = audioCtxRef.current.createBufferSource();
+      source.buffer = audioBuffers.current.unlock;
+      source.connect(audioCtxRef.current.destination);
+      source.start(0);
+    }
   };
 
   const trackMilestone = async (eventName: string, extraData: any = {}) => {
@@ -94,6 +110,7 @@ const App: React.FC = () => {
     await ctx.resume();
     audioCtxRef.current = ctx;
     await preloadAudios(ctx);
+    playUnlockSound();
     setHasUnlockedAudio(true);
     setIsSubmitting(false);
     navigateTo('1A', 'INICIO_EXPERIENCIA_CONFIRMADO');

@@ -8,7 +8,7 @@ interface Experience1AProps {
   onComplete: (name: string, skipCall?: boolean) => void;
   userData: { name: string, email: string, phone: string };
   audioCtx: AudioContext | null;
-  buffers: { typing?: AudioBuffer, sent?: AudioBuffer };
+  buffers: { typing?: AudioBuffer, sent?: AudioBuffer, notification?: AudioBuffer };
 }
 
 const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audioCtx, buffers }) => {
@@ -28,7 +28,7 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
     source.buffer = buffers.typing;
     source.loop = true;
     const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
     source.connect(gain).connect(audioCtx.destination);
     source.start(0);
     typingSourceRef.current = source;
@@ -45,6 +45,16 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
     if (!audioCtx || !buffers.sent) return;
     const source = audioCtx.createBufferSource();
     source.buffer = buffers.sent;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    source.connect(gain).connect(audioCtx.destination);
+    source.start(0);
+  };
+
+  const playNotificationSound = () => {
+    if (!audioCtx || !buffers.notification) return;
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffers.notification;
     const gain = audioCtx.createGain();
     gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
     source.connect(gain).connect(audioCtx.destination);
@@ -67,7 +77,7 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
       buttons
     };
     setMessages(prev => [...prev, msg]);
-    playSentSound();
+    playNotificationSound();
   };
 
   useEffect(() => {

@@ -9,6 +9,8 @@ export const EXPERT_FAMILY_PHOTO = "https://images.unsplash.com/photo-1511895426
 
 export const KEYBOARD_SOUND_URL = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/main/mixkit-keyboard-typing-1386.wav";
 export const SENT_SOUND_URL = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/main/whatsapp_sent_sound.mp3";
+export const NOTIFICATION_SOUND_URL = "https://raw.githubusercontent.com/kayosilvavinicius-prog/D4-SELLER-FUNNEL/main/whatsapp_notification.mp3";
+export const UNLOCK_SOUND_URL = "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3";
 
 export const WHATSAPP_1A_MESSAGES = [
   "seja bem-vindo(a).",
