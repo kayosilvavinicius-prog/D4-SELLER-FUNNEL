@@ -97,12 +97,12 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
                     ["Seguir por ligação", "Seguir por mensagem"]
                   );
                   setInputStep('confirmation');
-                }, 2000);
-              }, 2000);
-            }, 2500);
-          }, 1500);
-        }, 1500);
-      }, 800);
+                }, 1500);
+              }, 1500);
+            }, 2000);
+          }, 1200);
+        }, 1200);
+      }, 500);
       
     } else if (inputStep === 'confirmation') {
       setInputStep('none');
@@ -115,13 +115,13 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
           setIsTyping(false);
           if (isNegative) {
             addSystemMessage("Entendido. Vamos seguir pelo fluxo de mensagens aqui mesmo.");
-            setTimeout(() => onComplete(capturedName, true), 2000);
+            setTimeout(() => onComplete(capturedName, true), 1500);
           } else {
             addSystemMessage("Perfeito. Iniciando conexão de voz...");
-            setTimeout(() => onComplete(capturedName, false), 2000);
+            setTimeout(() => onComplete(capturedName, false), 1500);
           }
-        }, 2000);
-      }, 1000);
+        }, 1500);
+      }, 800);
     }
   };
 
@@ -170,65 +170,75 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
             setIsTyping(false);
             addSystemMessage("Mas antes de mais nada, eu preciso saber o seu nome. Como posso te chamar?");
             setInputStep('name');
-          }, 2000);
-        }, 1500);
+          }, 1800);
+        }, 1200);
         
         setSequenceIndex(1);
-      }, 1500);
+      }, 1000);
     }
   }, [sequenceIndex]);
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+      const scrollOptions: ScrollToOptions = {
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      };
+      scrollRef.current.scrollTo(scrollOptions);
+      // Fallback for immediate scroll on input change
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'auto' });
+      }, 100);
     }
   }, [messages, isTyping, inputStep]);
 
   return (
     <div className="flex flex-col h-[100dvh] max-w-[430px] mx-auto overflow-hidden font-sans relative wa-doodle-bg bg-[#e5ddd5]">
-      <header className="bg-[#f0f2f5]/95 backdrop-blur-md pt-10 pb-2 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 text-[#111b21] shadow-sm">
+      {/* Mais compacto para ganhar espaço vertical */}
+      <header className="bg-[#f0f2f5]/95 backdrop-blur-md pt-8 pb-1.5 px-3 flex flex-col shrink-0 z-20 border-b border-black/5 text-[#111b21] shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
-            <ChevronLeft className="text-[#007aff] w-8 h-8 -ml-2" />
+            <ChevronLeft className="text-[#007aff] w-7 h-7 -ml-2" />
             <div className="flex items-center space-x-2">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden relative border border-black/5">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden relative border border-black/5 shrink-0">
                 <img src={EXECUTIVE_AVATAR} alt="D4 Seller" className="w-full h-full object-cover" />
-                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#06d755] border-2 border-white rounded-full"></div>
+                <div className="absolute bottom-0 right-0 w-2 h-2 bg-[#06d755] border-2 border-white rounded-full"></div>
               </div>
               <div className="leading-tight">
-                <h2 className="text-[15px] sm:text-[16px] font-bold uppercase tracking-tighter text-left">D4 SELLER</h2>
-                <p className={`text-[11px] sm:text-[12px] text-left ${isTyping ? 'text-[#06d755]' : 'text-[#667781]'}`}>{isTyping ? 'digitando...' : 'online'}</p>
+                <h2 className="text-[14px] sm:text-[16px] font-bold uppercase tracking-tighter text-left">D4 SELLER</h2>
+                <p className={`text-[10px] sm:text-[11px] text-left ${isTyping ? 'text-[#06d755]' : 'text-[#667781]'}`}>{isTyping ? 'digitando...' : 'online'}</p>
               </div>
             </div>
           </div>
-          <div className="flex items-center space-x-4 sm:space-x-5 text-[#007aff]">
-            <Video size={20} />
-            <Phone size={18} />
-            <MoreVertical size={20} className="text-[#54656f]" />
+          <div className="flex items-center space-x-4 text-[#007aff]">
+            <Video size={18} />
+            <Phone size={16} />
+            <MoreVertical size={18} className="text-[#54656f]" />
           </div>
         </div>
       </header>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 z-10 scrollbar-hide pb-6">
+      {/* Área de mensagens com min-h-0 para flex-1 funcionar em iOS */}
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2 z-10 scrollbar-hide pb-4">
         {messages.map((msg) => (
-          <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2`}>
-            <div className={`${msg.sender === 'user' ? 'bg-[#DCF8C6]' : 'bg-white'} max-w-[85%] px-3 pt-2 pb-1.5 rounded-xl shadow-sm relative border border-black/[0.03] text-[#111b21]`}>
-              <div className="text-[14px] sm:text-[15px] leading-relaxed whitespace-pre-wrap text-left">{msg.text}</div>
+          <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-1`}>
+            <div className={`${msg.sender === 'user' ? 'bg-[#DCF8C6]' : 'bg-white'} max-w-[88%] px-2.5 pt-1.5 pb-1 rounded-xl shadow-sm relative border border-black/[0.03] text-[#111b21]`}>
+              <div className="text-[14px] sm:text-[15px] leading-snug whitespace-pre-wrap text-left">{msg.text}</div>
               <div className="flex items-center justify-end space-x-1 mt-0.5 opacity-60">
-                <span className="text-[9px] sm:text-[10px] uppercase font-bold">{msg.timestamp}</span>
-                {msg.sender === 'user' && <CheckCheck size={14} className="text-[#53bdeb]" />}
+                <span className="text-[9px] uppercase font-bold">{msg.timestamp}</span>
+                {msg.sender === 'user' && <CheckCheck size={12} className="text-[#53bdeb]" />}
               </div>
               {msg.sender === 'system' && <div className="absolute top-0 -left-1.5 w-3 h-3 bg-white clip-tail-left"></div>}
               {msg.sender === 'user' && <div className="absolute top-0 -right-1.5 w-3 h-3 bg-[#DCF8C6] clip-tail-right"></div>}
             </div>
             
             {msg.buttons && (
-              <div className="flex flex-col space-y-2 mt-2 w-full max-w-[85%] animate-in fade-in duration-500 delay-300">
+              <div className="flex flex-col space-y-1.5 mt-2 w-full max-w-[85%] animate-in fade-in duration-300">
                 {msg.buttons.map((btn, bIdx) => (
                   <button 
                     key={bIdx}
                     onClick={() => handleButtonClick(btn)}
-                    className="bg-white hover:bg-[#f0f2f5] text-[#00a884] font-bold py-2.5 px-4 rounded-xl shadow-sm border border-black/5 active:scale-95 transition-all text-center text-sm"
+                    className="bg-white hover:bg-[#f0f2f5] text-[#00a884] font-bold py-2.5 px-4 rounded-xl shadow-sm border border-black/5 active:scale-95 transition-all text-center text-[13px] sm:text-sm"
                   >
                     {btn}
                   </button>
@@ -238,7 +248,7 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
           </div>
         ))}
         {isTyping && (
-          <div className="flex justify-start animate-in fade-in">
+          <div className="flex justify-start">
             <div className="bg-white px-3 py-2 rounded-xl shadow-sm flex space-x-1">
               <div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce [animation-delay:-0.3s]" />
               <div className="w-1.5 h-1.5 bg-[#adb5bd] rounded-full animate-bounce [animation-delay:-0.15s]" />
@@ -248,17 +258,18 @@ const Experience1A: React.FC<Experience1AProps> = ({ onComplete, userData, audio
         )}
       </div>
 
-      <footer className="bg-[#f0f2f5] p-2 shrink-0 z-20 border-t border-black/5 flex items-center space-x-2 pb-[env(safe-area-inset-bottom,12px)]">
-        <div className="flex items-center space-x-3 text-[#54656f] pl-1">
-          <Smile size={24} className="opacity-70" />
-          <Paperclip size={22} className="opacity-70" />
+      {/* Footer colado na parte inferior com ajuste para área segura */}
+      <footer className="bg-[#f0f2f5] p-2 shrink-0 z-20 border-t border-black/5 flex items-center space-x-2 pb-[env(safe-area-inset-bottom,10px)]">
+        <div className="flex items-center space-x-2.5 text-[#54656f] pl-1">
+          <Smile size={24} className="opacity-60" />
+          <Paperclip size={22} className="opacity-60" />
         </div>
         <div className="flex-1 bg-white rounded-full px-4 py-2 border border-black/5 shadow-inner">
           <input 
             type="text" 
             placeholder={
               inputStep === 'name' ? "Digite seu nome..." : 
-              inputStep === 'confirmation' ? "Escolha uma opção..." : "Aguarde..."
+              inputStep === 'confirmation' ? "Responda acima..." : "Aguarde..."
             } 
             disabled={inputStep === 'none'} 
             value={inputValue} 

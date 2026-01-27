@@ -102,102 +102,102 @@ const Experience1B: React.FC<{ audioCtx: AudioContext | null, onComplete: (refus
       </div>
 
       {/* Top Header - iPhone Style */}
-      <div className={`text-center z-10 w-full space-y-2 animate-in fade-in duration-700 ${status === 'ringing' ? 'pt-20' : 'pt-12'}`}>
+      <div className={`text-center z-10 w-full space-y-1 animate-in fade-in duration-700 ${status === 'ringing' ? 'pt-16 sm:pt-20' : 'pt-10 sm:pt-12'}`}>
         <div className="space-y-1">
-          <h1 className="text-[34px] font-semibold tracking-tight">D4 PHONE</h1>
-          <p className="text-[18px] text-white/70 font-normal">
+          <h1 className="text-[30px] sm:text-[34px] font-semibold tracking-tight uppercase italic">D4 PHONE</h1>
+          <p className="text-[16px] sm:text-[18px] text-white/70 font-normal">
             {status === 'ringing' ? 'WhatsApp áudio...' : formatTime(time)}
           </p>
         </div>
       </div>
 
-      {/* Central Profile Photo - Size adjusts based on status to fit screen */}
-      <div className={`flex items-center justify-center z-10 w-full px-12 transition-all duration-500 ${status === 'ringing' ? 'flex-1' : 'py-4'}`}>
+      {/* Central Profile Photo - Size adjusts based on status */}
+      <div className={`flex items-center justify-center z-10 w-full px-12 transition-all duration-500 ${status === 'ringing' ? 'flex-1' : 'py-3'}`}>
         <div className={`rounded-full overflow-hidden border-2 border-white/10 shadow-2xl transition-all duration-500 ${status === 'ringing' ? 'w-40 h-40 sm:w-48 sm:h-48' : 'w-24 h-24 sm:w-28 sm:h-28'}`}>
           <img src={EXECUTIVE_AVATAR} alt="Perfil" className="w-full h-full object-cover" />
         </div>
       </div>
 
       {/* Bottom Controls */}
-      <div className={`w-full px-8 z-10 ${status === 'ringing' ? 'pb-16 space-y-12' : 'pb-10 space-y-6'}`}>
+      <div className={`w-full px-8 z-10 ${status === 'ringing' ? 'pb-16' : 'pb-8 sm:pb-12'}`}>
         {status === 'ringing' ? (
           <div className="flex items-center justify-around w-full mb-8">
             <div className="flex flex-col items-center space-y-3">
               <button 
                 onClick={() => onComplete(true)} 
-                className="w-20 h-20 bg-[#ff3b30] rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+                className="w-18 h-18 sm:w-20 sm:h-20 bg-[#ff3b30] rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform"
               >
-                <Phone size={36} className="rotate-[135deg] fill-white text-white" />
+                <Phone size={32} className="rotate-[135deg] fill-white text-white" />
               </button>
-              <span className="text-[13px] font-medium text-white/90">Recusar</span>
+              <span className="text-[12px] font-medium text-white/90 uppercase tracking-tighter">Recusar</span>
             </div>
             <div className="flex flex-col items-center space-y-3">
               <button 
                 onClick={handleAccept} 
-                className="w-20 h-20 bg-[#34c759] rounded-full flex items-center justify-center shadow-lg active:scale-90 animate-pulse transition-transform"
+                className="w-18 h-18 sm:w-20 sm:h-20 bg-[#34c759] rounded-full flex items-center justify-center shadow-lg active:scale-90 animate-pulse transition-transform"
               >
-                <Phone size={36} className="fill-white text-white" />
+                <Phone size={32} className="fill-white text-white" />
               </button>
-              <span className="text-[13px] font-medium text-white/90">Aceitar</span>
+              <span className="text-[12px] font-medium text-white/90 uppercase tracking-tighter">Aceitar</span>
             </div>
           </div>
         ) : (
-          <div className="space-y-4 animate-in slide-in-from-bottom-6 duration-500">
-            <div className="grid grid-cols-3 gap-y-4 gap-x-6">
+          <div className="space-y-4 sm:space-y-6 animate-in slide-in-from-bottom-6 duration-500">
+            <div className="grid grid-cols-3 gap-y-4 gap-x-4 sm:gap-x-6">
               {/* Row 1 */}
               <div className="flex flex-col items-center space-y-1.5">
                 <button 
                   onClick={() => setIsMuted(!isMuted)}
-                  className={`w-[72px] h-[72px] rounded-full flex items-center justify-center backdrop-blur-xl transition-all ${isMuted ? 'bg-white text-black' : 'bg-white/10 text-white border border-white/5'}`}
+                  className={`w-16 h-16 sm:w-18 sm:h-18 rounded-full flex items-center justify-center backdrop-blur-xl transition-all ${isMuted ? 'bg-white text-black' : 'bg-white/10 text-white border border-white/5'}`}
                 >
-                  {isMuted ? <Mic size={28} /> : <MicOff size={28} />}
+                  {isMuted ? <Mic size={26} /> : <MicOff size={26} />}
                 </button>
-                <span className="text-[11px] font-medium text-white/70 uppercase tracking-tighter">mudo</span>
+                <span className="text-[10px] font-medium text-white/60 uppercase tracking-tighter">mudo</span>
               </div>
               <div className="flex flex-col items-center space-y-1.5">
-                <div className="w-[72px] h-[72px] bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5">
-                  <Grid3X3 size={28} />
+                <div className="w-16 h-16 sm:w-18 sm:h-18 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5">
+                  <Grid3X3 size={26} />
                 </div>
-                <span className="text-[11px] font-medium text-white/70 uppercase tracking-tighter">teclado</span>
+                <span className="text-[10px] font-medium text-white/60 uppercase tracking-tighter">teclado</span>
               </div>
               <div className="flex flex-col items-center space-y-1.5">
                 <button 
                   onClick={() => setIsSpeaker(!isSpeaker)}
-                  className={`w-[72px] h-[72px] rounded-full flex items-center justify-center backdrop-blur-xl transition-all ${isSpeaker ? 'bg-white text-black' : 'bg-white/10 text-white border border-white/5'}`}
+                  className={`w-16 h-16 sm:w-18 sm:h-18 rounded-full flex items-center justify-center backdrop-blur-xl transition-all ${isSpeaker ? 'bg-white text-black' : 'bg-white/10 text-white border border-white/5'}`}
                 >
-                  <Speaker size={28} />
+                  <Speaker size={26} />
                 </button>
-                <span className="text-[11px] font-medium text-white/70 uppercase tracking-tighter">alto-falante</span>
+                <span className="text-[10px] font-medium text-white/60 uppercase tracking-tighter">alto-falante</span>
               </div>
 
               {/* Row 2 */}
               <div className="flex flex-col items-center space-y-1.5">
-                <div className="w-[72px] h-[72px] bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5 opacity-40">
-                  <Plus size={28} />
+                <div className="w-16 h-16 sm:w-18 sm:h-18 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5 opacity-40">
+                  <Plus size={26} />
                 </div>
-                <span className="text-[11px] font-medium text-white/40 uppercase tracking-tighter">adicionar</span>
+                <span className="text-[10px] font-medium text-white/30 uppercase tracking-tighter">adicionar</span>
               </div>
               <div className="flex flex-col items-center space-y-1.5">
-                <div className="w-[72px] h-[72px] bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5 opacity-40">
-                  <Video size={28} />
+                <div className="w-16 h-16 sm:w-18 sm:h-18 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5 opacity-40">
+                  <Video size={26} />
                 </div>
-                <span className="text-[11px] font-medium text-white/40 uppercase tracking-tighter">FaceTime</span>
+                <span className="text-[10px] font-medium text-white/30 uppercase tracking-tighter">FaceTime</span>
               </div>
               <div className="flex flex-col items-center space-y-1.5">
-                <div className="w-[72px] h-[72px] bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5">
-                  <User size={28} />
+                <div className="w-16 h-16 sm:w-18 sm:h-18 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl text-white border border-white/5">
+                  <User size={26} />
                 </div>
-                <span className="text-[11px] font-medium text-white/70 uppercase tracking-tighter">contatos</span>
+                <span className="text-[10px] font-medium text-white/60 uppercase tracking-tighter">contatos</span>
               </div>
             </div>
 
-            {/* Hang Up Button - Always Visible */}
-            <div className="flex justify-center pt-4">
+            {/* Hang Up Button - Garantido na tela */}
+            <div className="flex justify-center pt-2 sm:pt-4">
               <button 
                 onClick={handleHangUp} 
-                className="w-20 h-20 bg-[#ff3b30] rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all"
+                className="w-16 h-16 sm:w-20 sm:h-20 bg-[#ff3b30] rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all"
               >
-                <Phone size={36} className="rotate-[135deg] fill-white text-white" />
+                <Phone size={32} className="rotate-[135deg] fill-white text-white" />
               </button>
             </div>
           </div>
@@ -205,7 +205,7 @@ const Experience1B: React.FC<{ audioCtx: AudioContext | null, onComplete: (refus
       </div>
 
       {/* iOS Home Indicator */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-36 h-1.5 bg-white/30 rounded-full"></div>
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-white/30 rounded-full"></div>
     </div>
   );
 };

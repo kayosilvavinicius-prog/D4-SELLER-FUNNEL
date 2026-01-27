@@ -32,15 +32,44 @@ const App: React.FC = () => {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioBuffers = useRef<{ typing?: AudioBuffer, sent?: AudioBuffer }>({});
 
+  // Captura UTMs e registra a visita inicial IMEDIATAMENTE
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setUtms({
+    const capturedUtms = {
       utm_source: params.get('utm_source') || '',
       utm_medium: params.get('utm_medium') || '',
       utm_campaign: params.get('utm_campaign') || '',
       utm_content: params.get('utm_content') || '',
       utm_term: params.get('utm_term') || ''
-    });
+    };
+    setUtms(capturedUtms);
+
+    // Registro automático de chegada (mesmo sem clique no botão)
+    const trackArrival = async () => {
+      const payload = { 
+        data_hora: new Date().toLocaleString('pt-BR'),
+        etapa: 'VISITA_PAGINA_INICIAL',
+        nome: "Visitante Anônimo",
+        email: "aguardando@leadhub.com",
+        whatsapp: "000000000",
+        ...capturedUtms
+      };
+
+      if (WEBHOOK_URL) {
+        fetch(WEBHOOK_URL, { 
+          method: 'POST', 
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' }, 
+          body: JSON.stringify(payload) 
+        }).catch((err) => console.error("Webhook Arrival Error:", err));
+      }
+
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'PageView', { ...capturedUtms });
+      }
+    };
+
+    trackArrival();
   }, []);
 
   const preloadAudios = async (ctx: AudioContext) => {
@@ -80,7 +109,7 @@ const App: React.FC = () => {
     if (typeof window !== 'undefined' && (window as any).fbq) {
       const fbq = (window as any).fbq;
       const options = META_TEST_CODE ? { test_event_code: META_TEST_CODE } : {};
-      fbq('trackCustom', eventName, { email: userData.email, name: userData.name }, options);
+      fbq('trackCustom', eventName, { email: userData.email, name: userData.name, ...utms }, options);
     }
   };
 
@@ -93,7 +122,7 @@ const App: React.FC = () => {
     await preloadAudios(ctx);
     setHasUnlockedAudio(true);
     setIsSubmitting(false);
-    navigateTo('1A', 'INICIO_EXPERIENCIA_ANONIMA');
+    navigateTo('1A', 'INICIO_EXPERIENCIA_CONFIRMADO');
   };
 
   const handleLeadSubmit = async () => {
