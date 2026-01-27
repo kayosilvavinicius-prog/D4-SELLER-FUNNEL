@@ -8,7 +8,7 @@ import Diagnostico from './components/Diagnostico';
 import SalesPage from './components/SalesPage';
 import Menu from './components/Menu';
 import { KEYBOARD_SOUND_URL, SENT_SOUND_URL, NOTIFICATION_SOUND_URL, UNLOCK_SOUND_URL, EXECUTIVE_AVATAR } from './constants';
-import { Loader2, ArrowRight, ShieldCheck, Settings, CheckCircle2, AlertCircle, FileText, Sparkles, X } from 'lucide-react';
+import { Loader2, ArrowRight, ShieldCheck, Settings, CheckCircle2, AlertCircle, FileText, Sparkles, X, Zap } from 'lucide-react';
 import { Experience as ExperienceType } from './types';
 
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxQau-SChwXppRxOgxYKP87Rr52lKekDUikue5sssEtzhXFwknqxfEvYSr7ioHmn_p4bA/exec"; 
@@ -180,8 +180,8 @@ const App: React.FC = () => {
                       <img src={EXECUTIVE_AVATAR} alt="D4" className="w-full h-full object-cover" />
                     </div>
                     <div className="leading-tight text-left">
-                      <h3 className="text-[17px] font-black text-white italic tracking-tighter uppercase">D4 Seller</h3>
-                      <p className="text-[10px] font-bold text-[#66FCF1] uppercase tracking-[0.2em] mt-0.5 opacity-80">Analista de Vendas</p>
+                      <h3 className="text-[17px] font-black text-white italic tracking-tighter uppercase">D4 SELLER</h3>
+                      <p className="text-[10px] font-bold text-[#66FCF1] uppercase tracking-[0.2em] mt-0.5 opacity-80">Analista de Atendimento Comercial</p>
                     </div>
                   </div>
                   <div className="text-[10px] font-black text-[#66FCF1] uppercase tracking-widest bg-[#66FCF1]/10 px-4 py-2 rounded-full border border-[#66FCF1]/20">Online</div>
@@ -189,10 +189,10 @@ const App: React.FC = () => {
 
                 <div className="space-y-4">
                   <h2 className="text-[22px] font-bold leading-tight text-white text-left tracking-tight">
-                    Auditoria de Conversão: Detecte onde você perde dinheiro.
+                    Descubra onde o seu atendimento está travando suas vendas.
                   </h2>
                   <p className="text-sm text-white/50 text-left leading-relaxed font-medium">
-                    Descubra o impacto do seu atendimento nas suas vendas mensais.
+                    Entenda como o seu atendimento influencia a decisão do cliente, em poucos minutos.
                   </p>
                   
                   <div className="space-y-3.5 pt-5 border-t border-white/5">
@@ -200,13 +200,13 @@ const App: React.FC = () => {
                       <div className="w-6 h-6 bg-[#66FCF1]/10 rounded-lg flex items-center justify-center border border-[#66FCF1]/20 shrink-0">
                         <CheckCircle2 size={14} className="text-[#66FCF1]" />
                       </div>
-                      <span className="text-[12px] font-medium uppercase tracking-tight">Análise técnica em 60s</span>
+                      <span className="text-[12px] font-medium uppercase tracking-tight">Diagnóstico rápido e objetivo</span>
                     </div>
-                    <div className="flex items-center space-x-3 text-red-400/80 animate-pulse">
-                      <div className="w-6 h-6 bg-red-500/10 rounded-lg flex items-center justify-center border border-red-500/20 shrink-0">
-                        <AlertCircle size={14} className="text-red-400" />
+                    <div className="flex items-center space-x-3 text-white/70">
+                      <div className="w-6 h-6 bg-[#66FCF1]/10 rounded-lg flex items-center justify-center border border-[#66FCF1]/20 shrink-0">
+                        <Zap size={14} className="text-[#66FCF1]" />
                       </div>
-                      <span className="text-[11px] font-black uppercase tracking-tighter">Gratuito para CNPJ</span>
+                      <span className="text-[12px] font-medium uppercase tracking-tight">Análise focada em tomada de decisão</span>
                     </div>
                   </div>
 
@@ -215,7 +215,7 @@ const App: React.FC = () => {
                       <FileText size={20} className="text-[#66FCF1]" />
                     </div>
                     <p className="text-[11px] font-bold text-white/60 leading-snug text-left">
-                      Seu <span className="text-[#66FCF1]">Relatório de Performance Comercial</span> será gerado automaticamente ao final <span className="text-white">desta experiência.</span>
+                      Resultados apresentados ao final <span className="text-[#66FCF1]">desta experiência.</span>
                     </p>
                   </div>
                 </div>
@@ -231,7 +231,7 @@ const App: React.FC = () => {
                   <Loader2 className="animate-spin" />
                 ) : (
                   <>
-                    <span>INICIAR AUDITORIA</span>
+                    <span>INICIAR DIAGNÓSTICO GRATUITO</span>
                     <ArrowRight size={24} className="group-hover:translate-x-1.5 transition-transform" />
                   </>
                 )}
